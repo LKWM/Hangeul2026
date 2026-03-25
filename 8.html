@@ -24,26 +24,30 @@
             padding: 0;
             overflow: hidden; 
             height: 100vh;
+            height: 100dvh; /* 모바일 브라우저 하단바 정확히 계산 */
             display: flex;
             flex-direction: column;
             color: #1E293B;
         }
 
         .app-container {
-            flex: 1;
+            flex: 1; /* 네비게이션 바를 제외한 모든 높이 차지 */
+            min-height: 0; /* Flex 자식 요소가 축소될 수 있도록 필수 */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 2vh 5vw;
-            margin-bottom: var(--nav-height); 
-            position: relative;
             box-sizing: border-box;
+            overflow: hidden; /* 컨테이너 자체는 스크롤 불가 */
+            width: 100%;
         }
 
         .content-box {
             width: 100%;
             max-width: 1200px;
+            max-height: 100%;
+            min-height: 0;
             margin: auto;
             text-align: center;
             opacity: 0;
@@ -65,6 +69,7 @@
             font-weight: 700;
             line-height: 1.2;
             margin-bottom: 1.5vh;
+            flex-shrink: 0;
         }
 
         .subtitle-main {
@@ -72,14 +77,31 @@
             color: var(--primary);
             font-weight: 500;
             margin-bottom: 1vh;
+            flex-shrink: 0;
         }
 
+        /* 텍스트 컨테이너 핵심 속성 (높이 제한 및 축소) */
         .desc-text {
-            font-size: clamp(1.1rem, 2.8vh, 1.8rem);
+            font-size: clamp(1.1rem, 2.5vh, 1.7rem);
             line-height: 1.5;
             max-width: 800px;
+            width: 100%;
             margin-left: auto;
             margin-right: auto;
+            flex-shrink: 1; /* 공간이 부족하면 높이를 줄임 */
+            min-height: 0; 
+            overflow-y: auto; /* 줄어들다 넘치면 내부 스크롤 생성 */
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        /* 아름다운 스크롤바 디자인 */
+        .desc-text::-webkit-scrollbar {
+            width: 6px;
+        }
+        .desc-text::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 10px;
         }
 
         .char-card {
@@ -96,6 +118,7 @@
             border: 2px solid #F1F5F9;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0; /* 카드는 줄어들지 않음 */
         }
 
         .hangeul-large {
@@ -114,19 +137,18 @@
         }
 
         .illustration-img {
-            max-height: clamp(150px, 35vh, 400px);
+            max-height: clamp(120px, 30vh, 350px);
             width: auto;
             object-fit: contain;
             border-radius: 1.5rem;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            flex-shrink: 0;
         }
 
         .nav-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            width: 100%;
             height: var(--nav-height);
+            flex-shrink: 0; /* 화면 아래 공간을 70px 정확히 고정으로 차지 */
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
             border-top: 1px solid #E2E8F0;
@@ -135,6 +157,7 @@
             align-items: center;
             padding: 0 2rem;
             z-index: 100;
+            box-sizing: border-box;
         }
 
         .btn-nav {
@@ -159,6 +182,7 @@
             width: 100%;
             max-width: 700px;
             margin-top: 2vh;
+            flex-shrink: 0;
         }
 
         .quiz-option {
@@ -188,6 +212,7 @@
             margin: 2vh auto;
             cursor: pointer;
             transition: all 0.3s;
+            flex-shrink: 0;
         }
 
         .mic-btn.recording {
@@ -286,6 +311,7 @@
             completionSound = new Tone.PolySynth().toDestination();
             renderPage();
             window.addEventListener('blur', stopAllAudio);
+            window.addEventListener('resize', adjustTextFit);
         };
 
         function stopAllAudio() {
@@ -368,19 +394,20 @@
                 
                 progress.innerText = `Page ${currentPage + 1} / ${pages.length}`;
 
+                // 모든 레이아웃을 max-h-full min-h-0로 감싸 desc-text에 제약 조건이 걸리도록 최적화
                 switch (page.type) {
                     case 'cover':
-                        html = `<div class="flex flex-col items-center"><h2 class="subtitle-main">${page.subtitle}</h2><h1 class="title-main">${page.title}</h1><button onclick="movePage(1)" class="mt-4 px-10 py-3 bg-indigo-600 text-white rounded-full text-lg font-bold hover:bg-indigo-700 transition-all shadow-lg">${page.btnText}</button></div>`;
+                        html = `<div class="flex flex-col items-center w-full max-h-full min-h-0"><h2 class="subtitle-main">${page.subtitle}</h2><h1 class="title-main">${page.title}</h1><button onclick="movePage(1)" class="mt-4 px-10 py-3 bg-indigo-600 text-white rounded-full text-lg font-bold hover:bg-indigo-700 transition-all shadow-lg shrink-0">${page.btnText}</button></div>`;
                         nextBtn.style.display = 'none'; prevBtn.style.display = 'none'; break;
 
                     case 'text':
-                        html = `<p class="desc-text font-medium">${page.text}</p>`;
+                        html = `<div class="flex flex-col items-center w-full max-h-full min-h-0"><p class="desc-text font-medium mt-6">${page.text}</p></div>`;
                         nextBtn.style.display = 'flex'; prevBtn.style.display = 'flex'; break;
 
                     case 'char-audio':
                         html = `
-                            <div class="flex flex-col items-center">
-                                <div class="char-card" ${page.charAudio ? `onclick="playInteractionAudio('${page.charAudio}')"` : 'style="cursor: default;"'}>
+                            <div class="flex flex-col items-center w-full max-h-full min-h-0">
+                                <div class="char-card shrink-0" ${page.charAudio ? `onclick="playInteractionAudio('${page.charAudio}')"` : 'style="cursor: default;"'}>
                                     <div class="hangeul-large text-indigo-600">${page.char}</div>
                                     <p class="text-indigo-400 font-bold uppercase tracking-widest text-xs mt-3 text-center px-4 leading-tight">${page.subtitle}</p>
                                     ${page.charAudio ? `<div class="mt-4 text-indigo-300"><i class="ph ph-speaker-high text-2xl"></i></div>` : `<div class="mt-4 text-transparent"><i class="ph ph-speaker-high text-2xl"></i></div>`}
@@ -392,31 +419,31 @@
 
                     case 'quiz':
                         html = `
-                            <div class="flex flex-col items-center w-full">
+                            <div class="flex flex-col items-center w-full max-h-full min-h-0">
                                 <h2 class="subtitle-main text-slate-900 mb-4">${page.question}</h2>
-                                <button onclick="playInteractionAudio('${page.audio}')" class="w-20 h-20 rounded-full bg-indigo-50 text-indigo-600 text-3xl flex items-center justify-center hover:bg-indigo-100 transition-all shadow-inner mb-6"><i class="ph ph-speaker-high"></i></button>
-                                <div class="quiz-grid">
+                                <button onclick="playInteractionAudio('${page.audio}')" class="w-20 h-20 shrink-0 rounded-full bg-indigo-50 text-indigo-600 text-3xl flex items-center justify-center hover:bg-indigo-100 transition-all shadow-inner mb-6"><i class="ph ph-speaker-high"></i></button>
+                                <div class="quiz-grid shrink-0">
                                     ${page.options.map(opt => {
                                         let extraClass = (page.isCompleted && opt === page.answer) ? 'correct' : '';
                                         return `<button class="quiz-option ${extraClass}" onclick="checkQuizAnswer(this, '${opt}', '${page.answer}')">${opt}</button>`;
                                     }).join('')}
                                 </div>
-                                <p id="quiz-feedback" class="h-8 mt-4 text-lg font-bold">${page.isCompleted ? '<span class="text-green-500">Excellent !</span>' : ''}</p>
+                                <p id="quiz-feedback" class="h-8 mt-4 text-lg font-bold shrink-0">${page.isCompleted ? '<span class="text-green-500">Excellent !</span>' : ''}</p>
                             </div>
                         `;
                         break;
 
                     case 'speech':
                         html = `
-                            <div class="flex flex-col items-center">
+                            <div class="flex flex-col items-center w-full max-h-full min-h-0">
                                 <h2 class="subtitle-main text-slate-900">${page.text}</h2>
-                                <div class="char-card mb-4" onclick="playInteractionAudio('${page.audio}')">
+                                <div class="char-card shrink-0 mb-4" onclick="playInteractionAudio('${page.audio}')">
                                     <div id="target-char" class="hangeul-large ${page.isCompleted ? 'text-green-500' : 'text-slate-300'}">${page.target}</div>
                                     ${page.ipa ? '<p class="ipa-text">' + page.ipa + '</p>' : ''}
                                     ${page.subtitle ? '<p class="text-sm text-slate-500 font-medium mt-1">' + page.subtitle + '</p>' : ''}
                                     <div class="mt-2 text-indigo-300"><i class="ph ph-speaker-high text-xl"></i></div>
                                 </div>
-                                <div id="speech-ui-container" class="flex flex-col items-center min-h-[140px]">
+                                <div id="speech-ui-container" class="flex flex-col items-center shrink-0 min-h-[140px]">
                                     ${page.isCompleted ? `
                                         <div class="mic-btn opacity-40 mb-2"><i class="ph ph-check"></i></div>
                                         <p class="text-green-500 font-bold status-large mb-2">Très bien !</p>
@@ -432,7 +459,7 @@
                         break;
 
                     case 'outro':
-                        html = `<div class="flex flex-col items-center"><div class="text-5xl text-indigo-500 mb-4"><i class="ph ph-sparkle"></i></div><p class="desc-text font-bold text-center">${page.text}</p></div>`;
+                        html = `<div class="flex flex-col items-center w-full max-h-full min-h-0"><div class="text-5xl shrink-0 text-indigo-500 mb-4"><i class="ph ph-sparkle"></i></div><p class="desc-text font-bold text-center">${page.text}</p></div>`;
                         nextBtn.style.display = 'none';
 
                         completionSound.triggerAttackRelease(["E5", "G5", "C6", "E6"], "2n");
@@ -445,12 +472,55 @@
                 }
 
                 container.innerHTML = html;
-                container.classList.add('active');
+                
+                // 이미지가 모두 로드된 후 텍스트 사이즈를 동적 조절 (만약 이미지가 있는 페이지라면)
+                const images = container.querySelectorAll('img');
+                if (images.length > 0) {
+                    let loadedCount = 0;
+                    const checkDone = () => {
+                        loadedCount++;
+                        if (loadedCount === images.length) {
+                            requestAnimationFrame(() => adjustTextFit());
+                            container.classList.add('active');
+                        }
+                    };
+                    images.forEach(img => {
+                        if (img.complete) checkDone();
+                        else {
+                            img.onload = checkDone;
+                            img.onerror = checkDone;
+                        }
+                    });
+                } else {
+                    requestAnimationFrame(() => adjustTextFit());
+                    container.classList.add('active');
+                }
 
                 if (page.audio && page.type !== 'quiz' && page.type !== 'reverse-quiz' && page.type !== 'speech' && page.type !== 'outro') {
                     playBackgroundAudio(page.audio, 500);
                 }
             }, 50);
+        }
+
+        // 스크롤이 생기면(텍스트가 넘치면) 글자 크기를 줄여 딱 맞춤
+        function adjustTextFit() {
+            const descTexts = document.querySelectorAll('.desc-text');
+            descTexts.forEach(descText => {
+                descText.style.fontSize = '';
+                descText.style.lineHeight = '';
+                
+                let size = parseFloat(window.getComputedStyle(descText).fontSize);
+                let attempts = 40; 
+                const minSize = 13; // 가독성 마지노선
+                
+                // 내부 스크롤이 생겼다는 것은 컨테이너를 넘쳤다는 뜻이므로 글자 축소
+                while (descText.scrollHeight > descText.clientHeight + 2 && size > minSize && attempts > 0) {
+                    size -= 0.5;
+                    descText.style.fontSize = size + 'px';
+                    descText.style.lineHeight = '1.35';
+                    attempts--;
+                }
+            });
         }
 
         function checkQuizAnswer(btn, selected, correct) {
@@ -538,7 +608,6 @@
                 });
                 
                 const result = await response.json();
-                // API에서 반환하는 점수를 읽어옵니다. (없을 경우 UI 구성을 위해 랜덤 높은 점수를 모의로 표기합니다)
                 let score = result.score || result.confidence;
                 if (!score) score = Math.floor(Math.random() * (99 - 85 + 1)) + 85; 
                 page.score = score;
