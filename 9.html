@@ -638,6 +638,35 @@
             }
         }
 
+        // 두 문자열을 비교하여 일치도(%)를 계산하는 레벤슈타인 거리 알고리즘
+        function calculateSimilarity(ref, hyp) {
+            if (!ref && !hyp) return 100;
+            if (!ref || !hyp) return 0;
+            ref = ref.trim();
+            hyp = hyp.trim();
+            if (ref === hyp) return 100;
+
+            const matrix = [];
+            for (let i = 0; i <= ref.length; i++) { matrix[i] = [i]; }
+            for (let j = 0; j <= hyp.length; j++) { matrix[0][j] = j; }
+
+            for (let i = 1; i <= ref.length; i++) {
+                for (let j = 1; j <= hyp.length; j++) {
+                    if (ref.charAt(i - 1) === hyp.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(
+                            matrix[i - 1][j - 1] + 1, 
+                            Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1)
+                        );
+                    }
+                }
+            }
+            const distance = matrix[ref.length][hyp.length];
+            const maxLength = Math.max(ref.length, hyp.length);
+            return Math.max(0, Math.round(((maxLength - distance) / maxLength) * 100));
+        }
+
         async function verifySpeech(audioBase64, referenceText) {
             const status = document.getElementById('speech-status');
             const triesDisplay = document.getElementById('speech-tries');
@@ -656,8 +685,16 @@
                 });
                 
                 const result = await response.json();
+                
+                // 클로바가 인식한 텍스트 추출
+                const recognizedText = result.text || result.recognizedText || result.value || "";
+                
+                // API 자체 점수가 있으면 사용하고, 없으면 정답 단어와 인식된 텍스트를 비교하여 정확도 계산
                 let score = result.score || result.confidence;
-                if (!score) score = Math.floor(Math.random() * (99 - 85 + 1)) + 85; 
+                if (score === undefined || score === null) {
+                    score = calculateSimilarity(referenceText, recognizedText);
+                }
+                
                 page.score = score;
 
                 if (speechTries === 1) {
@@ -686,8 +723,9 @@
                     document.getElementById('next-btn').disabled = false;
                 }
             } catch (error) {
+                // 에러 발생 시 (빈 파일 등) 0점 처리
                 if (speechTries >= MAX_TRIES) {
-                    page.score = Math.floor(Math.random() * (95 - 80 + 1)) + 80;
+                    page.score = 0;
                     correctSound.triggerAttackRelease(['G5', 'C6'], '4n');
                     page.isCompleted = true;
                     if(charText) charText.className = "hangeul-large text-green-500";
