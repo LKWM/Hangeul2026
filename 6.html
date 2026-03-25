@@ -277,7 +277,7 @@
             { type: 'char-audio', char: 'ㅔ', subtitle: 'Voyelle moyenne antérieure non-arrondie', text: "Cette lettre est « ㅔ ». Sa prononciation est très similaire au /e/ français, comme dans le mot « clé ».", charAudio: SOUNDS.ㅔ, audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1773745223/6-5_pveueg.wav', isCompleted: true },
             { type: 'card-image', char: 'ㅔ', image: 'https://res.cloudinary.com/de76i94ia/image/upload/v1773571681/%E3%85%94_k3qx59.jpg', text: "À cause de la forme de cette lettre, les gens l'appellent souvent « 어이 », c'est-à-dire la combinaison de « ㅓ » et « ㅣ ». On baisse la mâchoire comme lorsqu'on prononce le « ㅓ ». Cependant, comme on l'appelle une voyelle moyenne, la bouche ne s'ouvre pas aussi grand sur les côtés que pour les voyelles ouvertes comme « ㅏ » ou « ㅐ ».", charAudio: SOUNDS.ㅔ, audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1773745486/6-6_zzcfyk.wav', isCompleted: true },
             { type: 'diagram', math: ['ㄱ', 'ㅔ', '게'], charAudio: SOUNDS.게, text: "Comme on peut le voir à sa forme, « ㅔ » est une voyelle avec un long trait vertical, elle se place donc à droite de la consonne.", audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1773745225/6-7_kergyo.wav', isCompleted: true },
-            { type: 'info-card', title: 'Neutralisation des voyelles', text: "Bien que « ㅐ » et « ㅔ » soient deux sons clairement différents selon les règles officielles de prononciation, ils ont tendance à se neutraliser et sont très peu distingués dans le langage moderne. Selon des recherches récentes, la plupart des jeunes natifs ne font plus la différence entre ces deux sons et les prononcent de la même manière.", audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1773745490/6-8_yemwrr.wav', isCompleted: true },
+            { type: 'info-card', title: 'Neutralisation des voyelles', text: "Bien que « ㅐ » et « ㅔ » soient deux sons clairement différents selon les règles officielles de prononciation, ils ont tendance à se neutraliser et sont très peu distingués dans le langage moderne. Selon des recherches récentes, la plupart des jeunes natifs ne font plus la différence entre ces deux sons et les prononcent de façon presque identique.", audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1773745490/6-8_yemwrr.wav', isCompleted: true },
             { type: 'info-card', title: 'Neutralisation des voyelles', text: "Comme ces deux sons sont facilement distinguables pour les francophones, il n'y a aucun problème à les prononcer différemment. Pourtant, il est toujours important de comprendre que les Coréens pourraient prononcer ces deux sons sans les distinguer clairement, et vous devrez alors souvent deviner leur orthographe.", audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1773745485/6-9_t3s02o.wav', isCompleted: true },
             { type: 'quiz', question: 'Écoutez bien et cliquez sur la lettre correcte.', audio: SOUNDS.더, options: ['더', '데', '도'], answer: '더', isCompleted: false },
             { type: 'quiz', question: 'Écoutez bien et cliquez sur la lettre correcte.', audio: SOUNDS.새, options: ['사', '자', '새'], answer: '새', isCompleted: false },
@@ -400,7 +400,6 @@
                 
                 progress.innerText = `Page ${currentPage + 1} / ${pages.length}`;
 
-                // 모든 레이아웃을 max-h-full min-h-0로 감싸 desc-text에 제약 조건이 걸리도록 최적화
                 switch (page.type) {
                     case 'cover':
                         html = `<div class="flex flex-col items-center w-full max-h-full min-h-0"><h2 class="subtitle-main">${page.subtitle}</h2><h1 class="title-main">${page.title}</h1><button onclick="movePage(1)" class="mt-4 px-10 py-3 bg-indigo-600 text-white rounded-full text-lg font-bold hover:bg-indigo-700 transition-all shadow-lg shrink-0">${page.btnText}</button></div>`;
@@ -483,26 +482,26 @@
                                 <div class="char-card shrink-0 mb-6 py-4 px-10 shadow-sm border-slate-200">
                                     <div class="hangeul-large text-indigo-600" style="font-size: clamp(3rem, 10vh, 6rem);">${page.target}</div>
                                 </div>
-                                <div class="flex justify-center shrink-0 gap-4 sm:gap-8 w-full max-w-lg mt-2">
+                                <div class="flex flex-wrap justify-center shrink-0 gap-3 sm:gap-6 w-full max-w-xl mt-2">
                                     ${page.options.map((opt, i) => {
                                         let btnClass = (page.isCompleted && opt.value === page.answer) ? 'border-green-500 bg-green-50 text-green-600' : 'border-slate-200 text-slate-600';
-                                        let showTrans = page.isCompleted ? `<p class="mt-2 font-bold text-slate-500">${opt.value}</p>` : `<p class="mt-2 font-bold text-slate-400 opacity-0 group-hover:opacity-50 transition-opacity">?</p>`;
+                                        let showTrans = page.isCompleted ? `<p class="mt-1 sm:mt-2 font-bold text-slate-500">${opt.value}</p>` : `<p class="mt-1 sm:mt-2 font-bold text-slate-400 opacity-0 group-hover:opacity-50 transition-opacity">?</p>`;
                                         return `
-                                        <div class="flex flex-col items-center group bg-white p-4 rounded-2xl border-2 border-transparent hover:border-slate-100 transition-all">
-                                            <span class="text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">${opt.label}</span>
-                                            <button class="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 bg-indigo-50 border-indigo-100 text-indigo-600 text-2xl flex items-center justify-center hover:bg-indigo-100 hover:scale-105 transition-all shadow-sm mb-4"
+                                        <div class="flex flex-col items-center group bg-white p-3 sm:p-4 rounded-2xl border-2 border-transparent hover:border-slate-100 transition-all flex-1 min-w-[90px] max-w-[140px]">
+                                            <span class="text-[10px] sm:text-xs font-bold text-slate-400 mb-2 sm:mb-3 uppercase tracking-wider">${opt.label}</span>
+                                            <button class="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-2 bg-indigo-50 border-indigo-100 text-indigo-600 text-xl sm:text-2xl flex items-center justify-center hover:bg-indigo-100 hover:scale-105 transition-all shadow-sm mb-3 sm:mb-4"
                                                 onclick="playInteractionAudio('${opt.audio}')">
                                                 <i class="ph ph-speaker-high"></i>
                                             </button>
-                                            <button class="px-5 py-2 border-2 rounded-xl font-bold text-sm hover:bg-slate-50 transition-all select-opt-btn ${btnClass}"
+                                            <button class="px-3 py-1.5 sm:px-5 sm:py-2 border-2 rounded-xl font-bold text-xs sm:text-sm hover:bg-slate-50 transition-all select-opt-btn ${btnClass}"
                                                 onclick="checkReverseQuizAnswer(this, '${opt.value}', '${page.answer}')">
                                                 Choisir
                                             </button>
-                                            <div class="transcription-container text-lg h-8">${showTrans}</div>
+                                            <div class="transcription-container text-base sm:text-lg h-6 sm:h-8">${showTrans}</div>
                                         </div>`;
                                     }).join('')}
                                 </div>
-                                <p id="quiz-feedback" class="h-8 mt-4 text-lg font-bold shrink-0">${page.isCompleted ? '<span class="text-green-500">Excellent !</span>' : ''}</p>
+                                <p id="quiz-feedback" class="h-8 mt-2 sm:mt-4 text-lg font-bold shrink-0">${page.isCompleted ? '<span class="text-green-500">Excellent !</span>' : ''}</p>
                             </div>
                         `;
                         break;
@@ -560,7 +559,7 @@
                         if (img.complete) checkDone();
                         else {
                             img.onload = checkDone;
-                            img.onerror = checkDone;
+                            img.onerror = checkDone; // 에러 시에도 진행되도록
                         }
                     });
                 } else {
@@ -632,7 +631,7 @@
                 
                 const containers = document.querySelectorAll('.transcription-container');
                 page.options.forEach((opt, i) => {
-                    containers[i].innerHTML = `<p class="mt-2 font-bold text-slate-500">${opt.value}</p>`;
+                    containers[i].innerHTML = `<p class="mt-1 sm:mt-2 font-bold text-slate-500">${opt.value}</p>`;
                 });
             } else {
                 btn.classList.remove('border-slate-200', 'text-slate-600');
