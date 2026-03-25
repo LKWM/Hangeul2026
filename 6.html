@@ -291,6 +291,7 @@
             completionSound = new Tone.PolySynth().toDestination();
             renderPage();
             window.addEventListener('blur', stopAllAudio);
+            window.addEventListener('resize', adjustTextFit);
         };
 
         // 브라우저 정책 대응: 사용자가 처음 화면 상호작용을 할 때 Tone 활성화
@@ -518,12 +519,36 @@
                 }
 
                 container.innerHTML = html;
+                adjustTextFit();
                 container.classList.add('active');
 
                 if (page.audio && page.type !== 'quiz' && page.type !== 'reverse-quiz' && page.type !== 'speech' && page.type !== 'outro') {
                     playBackgroundAudio(page.audio, 500);
                 }
             }, 50);
+        }
+
+        function adjustTextFit() {
+            const appContainer = document.querySelector('.app-container');
+            const contentBox = document.getElementById('lesson-content');
+            const descText = document.querySelector('.desc-text');
+            
+            if (!appContainer || !contentBox || !descText) return;
+            
+            // 기존에 설정된 인라인 스타일(축소된 크기) 초기화
+            descText.style.fontSize = '';
+            descText.style.lineHeight = '';
+            
+            let size = parseFloat(window.getComputedStyle(descText).fontSize);
+            let attempts = 40;
+            
+            // 콘텐츠 높이가 화면 컨테이너 높이를 초과하는 경우에만 폰트 축소 (최소 12px)
+            while (contentBox.scrollHeight > appContainer.clientHeight && size > 12 && attempts > 0) {
+                size -= 0.5;
+                descText.style.fontSize = size + 'px';
+                descText.style.lineHeight = '1.35';
+                attempts--;
+            }
         }
 
         async function checkQuizAnswer(btn, selected, correct) {
