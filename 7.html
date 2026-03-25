@@ -427,16 +427,16 @@
                     case 'double-char':
                         html = `
                             <div class="flex flex-col items-center w-full">
-                                <div class="flex flex-row justify-center gap-4 sm:gap-6 w-full max-w-3xl mb-6">
-                                    <div class="char-card flex-1 px-4 py-6" ${page.charAudio1 ? `onclick="playInteractionAudio('${page.charAudio1}')"` : 'style="cursor: default;"'}>
-                                        <div class="hangeul-large text-indigo-600" style="font-size: clamp(3rem, 10vh, 6rem);">${page.char1}</div>
-                                        <p class="text-indigo-400 font-bold uppercase tracking-widest text-[10px] sm:text-xs mt-3 text-center px-2 leading-tight min-h-[2.5rem] flex items-center justify-center">${page.subtitle1}</p>
-                                        ${page.charAudio1 ? `<div class="mt-3 text-indigo-300"><i class="ph ph-speaker-high text-xl"></i></div>` : ''}
+                                <div class="flex flex-row justify-center gap-2 sm:gap-6 w-full max-w-3xl mb-6 px-2 sm:px-0">
+                                    <div class="char-card flex-1 !min-w-0 px-2 py-4 sm:px-4 sm:py-6" ${page.charAudio1 ? `onclick="playInteractionAudio('${page.charAudio1}')"` : 'style="cursor: default;"'}>
+                                        <div class="hangeul-large text-indigo-600" style="font-size: clamp(2.5rem, 8vh, 6rem);">${page.char1}</div>
+                                        <p class="text-indigo-400 font-bold uppercase tracking-widest text-[9px] sm:text-xs mt-3 text-center px-1 leading-tight min-h-[2.5rem] flex items-center justify-center">${page.subtitle1}</p>
+                                        ${page.charAudio1 ? `<div class="mt-2 text-indigo-300"><i class="ph ph-speaker-high text-lg sm:text-xl"></i></div>` : ''}
                                     </div>
-                                    <div class="char-card flex-1 px-4 py-6" ${page.charAudio2 ? `onclick="playInteractionAudio('${page.charAudio2}')"` : 'style="cursor: default;"'}>
-                                        <div class="hangeul-large text-indigo-600" style="font-size: clamp(3rem, 10vh, 6rem);">${page.char2}</div>
-                                        <p class="text-indigo-400 font-bold uppercase tracking-widest text-[10px] sm:text-xs mt-3 text-center px-2 leading-tight min-h-[2.5rem] flex items-center justify-center">${page.subtitle2}</p>
-                                        ${page.charAudio2 ? `<div class="mt-3 text-indigo-300"><i class="ph ph-speaker-high text-xl"></i></div>` : ''}
+                                    <div class="char-card flex-1 !min-w-0 px-2 py-4 sm:px-4 sm:py-6" ${page.charAudio2 ? `onclick="playInteractionAudio('${page.charAudio2}')"` : 'style="cursor: default;"'}>
+                                        <div class="hangeul-large text-indigo-600" style="font-size: clamp(2.5rem, 8vh, 6rem);">${page.char2}</div>
+                                        <p class="text-indigo-400 font-bold uppercase tracking-widest text-[9px] sm:text-xs mt-3 text-center px-1 leading-tight min-h-[2.5rem] flex items-center justify-center">${page.subtitle2}</p>
+                                        ${page.charAudio2 ? `<div class="mt-2 text-indigo-300"><i class="ph ph-speaker-high text-lg sm:text-xl"></i></div>` : ''}
                                     </div>
                                 </div>
                                 <p class="desc-text">${page.text}</p>
