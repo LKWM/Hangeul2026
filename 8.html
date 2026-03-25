@@ -394,7 +394,6 @@
                 
                 progress.innerText = `Page ${currentPage + 1} / ${pages.length}`;
 
-                // 모든 레이아웃을 max-h-full min-h-0로 감싸 desc-text에 제약 조건이 걸리도록 최적화
                 switch (page.type) {
                     case 'cover':
                         html = `<div class="flex flex-col items-center w-full max-h-full min-h-0"><h2 class="subtitle-main">${page.subtitle}</h2><h1 class="title-main">${page.title}</h1><button onclick="movePage(1)" class="mt-4 px-10 py-3 bg-indigo-600 text-white rounded-full text-lg font-bold hover:bg-indigo-700 transition-all shadow-lg shrink-0">${page.btnText}</button></div>`;
@@ -447,7 +446,7 @@
                                     ${page.isCompleted ? `
                                         <div class="mic-btn opacity-40 mb-2"><i class="ph ph-check"></i></div>
                                         <p class="text-green-500 font-bold status-large mb-2">Très bien !</p>
-                                        ${page.score ? `<div class="bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-2 flex items-center gap-2"><i class="ph ph-target text-indigo-500 text-xl"></i><span class="text-indigo-600 font-bold">Précision : ${page.score}%</span></div>` : ''}
+                                        ${page.score !== undefined ? `<div class="bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-2 flex items-center gap-2"><i class="ph ph-target text-indigo-500 text-xl"></i><span class="text-indigo-600 font-bold">Précision : ${page.score}%</span></div>` : ''}
                                     ` : `
                                         <button id="mic-btn" class="mic-btn" onclick="toggleRecording('${page.target}')"><i class="ph ph-microphone"></i></button>
                                         <p id="speech-status" class="text-slate-500 font-medium text-sm transition-all duration-300 mt-2">Cliquez sur le micro pour parler</p>
@@ -473,7 +472,6 @@
 
                 container.innerHTML = html;
                 
-                // 이미지가 모두 로드된 후 텍스트 사이즈를 동적 조절 (만약 이미지가 있는 페이지라면)
                 const images = container.querySelectorAll('img');
                 if (images.length > 0) {
                     let loadedCount = 0;
@@ -502,7 +500,6 @@
             }, 50);
         }
 
-        // 스크롤이 생기면(텍스트가 넘치면) 글자 크기를 줄여 딱 맞춤
         function adjustTextFit() {
             const descTexts = document.querySelectorAll('.desc-text');
             descTexts.forEach(descText => {
@@ -511,9 +508,8 @@
                 
                 let size = parseFloat(window.getComputedStyle(descText).fontSize);
                 let attempts = 40; 
-                const minSize = 13; // 가독성 마지노선
+                const minSize = 13; 
                 
-                // 내부 스크롤이 생겼다는 것은 컨테이너를 넘쳤다는 뜻이므로 글자 축소
                 while (descText.scrollHeight > descText.clientHeight + 2 && size > minSize && attempts > 0) {
                     size -= 0.5;
                     descText.style.fontSize = size + 'px';
@@ -590,6 +586,35 @@
             }
         }
 
+        // 두 문자열을 비교하여 일치도(%)를 계산하는 레벤슈타인 거리 알고리즘
+        function calculateSimilarity(ref, hyp) {
+            if (!ref && !hyp) return 100;
+            if (!ref || !hyp) return 0;
+            ref = ref.trim();
+            hyp = hyp.trim();
+            if (ref === hyp) return 100;
+
+            const matrix = [];
+            for (let i = 0; i <= ref.length; i++) { matrix[i] = [i]; }
+            for (let j = 0; j <= hyp.length; j++) { matrix[0][j] = j; }
+
+            for (let i = 1; i <= ref.length; i++) {
+                for (let j = 1; j <= hyp.length; j++) {
+                    if (ref.charAt(i - 1) === hyp.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(
+                            matrix[i - 1][j - 1] + 1, 
+                            Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1)
+                        );
+                    }
+                }
+            }
+            const distance = matrix[ref.length][hyp.length];
+            const maxLength = Math.max(ref.length, hyp.length);
+            return Math.max(0, Math.round(((maxLength - distance) / maxLength) * 100));
+        }
+
         async function verifySpeech(audioBase64, referenceText) {
             const status = document.getElementById('speech-status');
             const triesDisplay = document.getElementById('speech-tries');
@@ -608,8 +633,16 @@
                 });
                 
                 const result = await response.json();
+                
+                // 클로바가 인식한 텍스트 추출
+                const recognizedText = result.text || result.recognizedText || result.value || "";
+                
+                // API 자체 점수가 있으면 사용하고, 없으면 정답 단어와 인식된 텍스트를 비교하여 정확도 계산
                 let score = result.score || result.confidence;
-                if (!score) score = Math.floor(Math.random() * (99 - 85 + 1)) + 85; 
+                if (score === undefined || score === null) {
+                    score = calculateSimilarity(referenceText, recognizedText);
+                }
+                
                 page.score = score;
 
                 if (speechTries === 1) {
@@ -638,8 +671,9 @@
                     document.getElementById('next-btn').disabled = false;
                 }
             } catch (error) {
+                // 에러 발생 시 (빈 파일, 침묵 등) 0점 처리
                 if (speechTries >= MAX_TRIES) {
-                    page.score = Math.floor(Math.random() * (95 - 80 + 1)) + 80;
+                    page.score = 0;
                     correctSound.triggerAttackRelease(['G5', 'C6'], '4n');
                     page.isCompleted = true;
                     if(charText) charText.className = "hangeul-large text-green-500";
