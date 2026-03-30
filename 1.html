@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apprendre le Hangeul - Leçon 0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Poppins:wght@400;600&display=swap');
+
+        :root {
+            --primary: #4F46E5;
+            --primary-dark: #3730A3;
+            --bg-color: #F8FAFC;
+            --nav-height: 70px;
+        }
+
+        body {
+            font-family: 'Poppins', 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            overflow: hidden; 
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            color: #1E293B;
+        }
+
+        .app-container {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2vh 5vw;
+            box-sizing: border-box;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .content-box {
+            width: 100%;
+            max-width: 1200px;
+            max-height: 100%;
+            min-height: 0;
+            margin: auto;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s ease-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-box.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .title-main {
+            font-size: clamp(1.5rem, 5vh, 3.5rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1.5vh;
+            flex-shrink: 0;
+        }
+
+        .subtitle-main {
+            font-size: clamp(1rem, 2.5vh, 1.5rem);
+            color: var(--primary);
+            font-weight: 500;
+            margin-bottom: 1vh;
+            flex-shrink: 0;
+        }
+
+        .desc-text {
+            font-size: clamp(1.1rem, 2.5vh, 1.7rem);
+            line-height: 1.5;
+            max-width: 800px;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            flex-shrink: 1;
+            min-height: 0; 
+            overflow-y: auto;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .desc-text::-webkit-scrollbar {
+            width: 6px;
+        }
+        .desc-text::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 10px;
+        }
+
+        .char-card {
+            background: white;
+            border-radius: clamp(1rem, 3vh, 2rem);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            padding: clamp(1.5rem, 4vh, 3rem);
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: clamp(150px, 25vw, 320px);
+            max-height: 55vh;
+            border: 2px solid #F1F5F9;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+        }
+
+        .nav-bar {
+            width: 100%;
+            height: var(--nav-height);
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #E2E8F0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+            z-index: 100;
+            box-sizing: border-box;
+        }
+
+        .btn-nav {
+            padding: 0.6rem clamp(1rem, 2vw, 1.5rem);
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: clamp(0.875rem, 2vh, 1rem);
+        }
+
+        .btn-nav:disabled { opacity: 0.2; cursor: not-allowed; }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-secondary { color: #64748B; border: 1px solid #CBD5E1; }
+
+        .quiz-option {
+            background: white;
+            border: 2px solid #E2E8F0;
+            border-radius: 1rem;
+            padding: clamp(0.8rem, 2vh, 1.5rem);
+            font-size: clamp(1.2rem, 3.5vh, 2rem);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quiz-option.correct { border-color: #10B981; background: #ECFDF5; color: #059669; }
+        .quiz-option.wrong { border-color: #EF4444; background: #FEF2F2; color: #DC2626; }
+
+        @media (max-width: 640px) {
+            .nav-bar { padding: 0 1rem; }
+            .btn-nav span { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="app-container">
+        <div id="lesson-content" class="content-box"></div>
+    </main>
+
+    <nav class="nav-bar">
+        <button id="prev-btn" class="btn-nav btn-secondary" onclick="movePage(-1)">
+            <i class="ph ph-caret-left"></i> <span>Précédent</span>
+        </button>
+        <div id="progress" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Leçon 0</div>
+        <button id="next-btn" class="btn-nav btn-primary" onclick="movePage(1)">
+            <span>Suivant</span> <i class="ph ph-caret-right"></i>
+        </button>
+    </nav>
+
+    <script>
+        const pages = [
+            { type: 'cover', subtitle: 'Chapitre 0 - Introduction', title: 'Leçon 1 - Introduction au programme et à la structure du hangeul', btnText: 'Commencer', isCompleted: true },
+            { type: 'text', text: "Bonjour à tous ! Bienvenue dans le programme « Apprendre le Hangeul 2026 » ! Ce cours est une version entièrement révisée de l'ancien manuel et programme en ligne « Bien prononcer le coréen ». Il est spécialement adapté pour correspondre parfaitement au style d'apprentissage de CoréenO.", audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774859983/1-1_h2crge.wav', isCompleted: true },
+            { type: 'text', text: "Ce cours a été conçu pour vous permettre de maîtriser l'alphabet coréen en environ deux semaines si vous l'étudiez tous les jours. L'objectif de ce programme n'est pas seulement de mémoriser les lettres. C'est de comprendre les principes de prononciation qui se cachent derrière ces lettres et de pouvoir lire n'importe quel mot coréen, même s'il vous est inconnu.", audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774859984/1-2_awzikm.wav', isCompleted: true },
+            { type: 'concept-card', title: 'Apprendre en ligne', text: "Certains disent qu'il est impossible d'apprendre une nouvelle langue en ligne, mais ce programme est justement là pour relever le défi et prouver le contraire. Le plus important est de ne pas sauter les explications en français, mais de les lire attentivement et de bien les comprendre. Cette section contient les réponses à toutes les questions fréquemment posées par des centaines d'étudiants qui ont déjà suivi ce cours.", audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774859984/1-3_vdgtd5.wav', isCompleted: true },
+            { type: 'concept-card', title: 'Prenez votre temps !', text: "Ne vous précipitez pas pour terminer le cours à tout prix. Assurez-vous de bien maîtriser chaque leçon avant de passer à la suivante. La qualité prime sur la vitesse. De cette façon, même sans aller à l'école tous les jours, vous serez capable de lire et d'écrire le hangeul d'ici deux semaines.", audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774859983/1-4_rxww9m.wav', isCompleted: true },
+            { type: 'concept-card', title: '한국어 (Hangugeo)<br><span class="text-indigo-300 text-3xl sm:text-4xl my-2 block">vs</span>한글 (Hangeul)', text: "Avant de commencer la première leçon, il y a deux mots à connaître : « 한국어 (Hangugeo) » et « 한글 (Hangeul) ».<br><br>« 한국어 (Hangugeo) » désigne la langue coréenne, et « 한글 (Hangeul) » est son système d'écriture. De la même manière que l'alphabet latin est utilisé pour le français, il faut connaître le « 한글 (Hangeul) » pour lire et écrire la langue coréenne.", audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774859984/1-5_sc5mms.wav', isCompleted: true },
+            { type: 'long-quiz', question: 'Laquelle des descriptions suivantes est correcte ?', options: ["Le Hangeul est la langue utilisée en Corée, et le Hangugeo est son système d'écriture.", "Le Hangeul est le système d'écriture utilisé en Corée, et le Hangugeo est la langue.", "Le Hangeul et le Hangugeo sont des synonymes signifiant 'langue coréenne'."], answer: "Le Hangeul est le système d'écriture utilisé en Corée, et le Hangugeo est la langue.", isCompleted: false },
+            { type: 'concept-card', title: '14 consonnes<br><span class="text-indigo-300 text-4xl sm:text-5xl my-2 block">+</span>10 voyelles', text: "Les consonnes de base ont été créées en imitant la forme des organes phonatoires, et elles sont modifiées par l'ajout de petits traits.<br><br>Quant aux voyelles, elles sont composées uniquement de traits horizontaux ou verticaux et se placent à droite ou en dessous de la consonne.", audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774859984/1-6_ggcvha.wav', isCompleted: true },
+            { type: 'diagram', title: 'Former une syllabe', diagramType: 'na', text: "Pour former une syllabe, c'est-à-dire une lettre prononçable, il faut absolument une consonne et une voyelle. La consonne vient toujours en premier, suivie de la voyelle.", audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774859983/1-7_ya8po5.wav', isCompleted: true },
+            { type: 'diagram', title: '', diagramType: 'o', text: "Si vous souhaitez former une syllabe composée uniquement d'un son de voyelle, on place le caractère « ㅇ » à la position de la consonne initiale. On ne peut jamais utiliser une consonne ou une voyelle toute seule.", audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774859984/1-8_gbfsre.wav', isCompleted: true },
+            { type: 'diagram', title: '', diagramType: 'na-no', text: "La voyelle se place selon sa forme, soit à droite, soit en dessous de la consonne.", audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774859982/1-9_jbyl0t.wav', isCompleted: true },
+            { type: 'diagram', title: '', diagramType: 'gang', text: "On peut également former des syllabes de trois caractères : une <span class='text-indigo-500 font-bold'>consonne</span>, une <span class='text-rose-500 font-bold'>voyelle</span> et une <span class='text-emerald-500 font-bold'>consonne finale</span>.", audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774859983/1-10_utiwl3.wav', isCompleted: true },
+            { type: 'long-quiz', question: 'Laquelle des descriptions suivantes est correcte ?', options: ["La voyelle se trouve à gauche de la consonne.", "Une syllabe peut être composée de 3 caractères.", "Il existe des lettres composées uniquement d'une consonne ou d'une voyelle.", "Si une position de consonne n'a pas de valeur phonétique, on la laisse vide."], answer: "Une syllabe peut être composée de 3 caractères.", isCompleted: false },
+            { type: 'outro', text: "Très bien ! Vous savez maintenant ce qu'est le hangeul et comment utiliser ce programme. Alors, vous êtes tout prêt à étudier le hangeul dans le Chapitre 1 ! À très bientôt !", audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774859983/1-11_vuy4db.wav', isCompleted: true }
+        ];
+
+        let currentPage = 0;
+        let currentAudio = null;
+        let backgroundAudioTimeout = null;
+        let transitionSynth, correctSound, completionSound, wrongSound;
+
+        window.onload = () => {
+            Tone.Destination.volume.value = -8;
+            transitionSynth = new Tone.Synth().toDestination();
+            correctSound = new Tone.PolySynth().toDestination();
+            wrongSound = new Tone.PolySynth().toDestination();
+            completionSound = new Tone.PolySynth().toDestination();
+            renderPage();
+            window.addEventListener('blur', stopAllAudio);
+            window.addEventListener('resize', adjustTextFit);
+        };
+
+        function stopAllAudio() {
+            if (backgroundAudioTimeout) {
+                clearTimeout(backgroundAudioTimeout);
+                backgroundAudioTimeout = null;
+            }
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                currentAudio = null;
+            }
+        }
+
+        function playBackgroundAudio(url, delay = 0) {
+            if (backgroundAudioTimeout) clearTimeout(backgroundAudioTimeout);
+            if (!url) return; 
+            backgroundAudioTimeout = setTimeout(() => {
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0;
+                    currentAudio = null;
+                }
+                currentAudio = new Audio(url);
+                currentAudio.play().catch(e => {});
+            }, delay);
+        }
+
+        function movePage(step) {
+            const nextIdx = currentPage + step;
+            if (nextIdx >= 0 && nextIdx < pages.length) {
+                stopAllAudio();
+                transitionSynth.triggerAttackRelease("C4", "8n");
+                currentPage = nextIdx;
+                renderPage();
+            }
+        }
+
+        function renderPage() {
+            const page = pages[currentPage];
+            const container = document.getElementById('lesson-content');
+            const nextBtn = document.getElementById('next-btn');
+            const prevBtn = document.getElementById('prev-btn');
+            const progress = document.getElementById('progress');
+
+            container.classList.remove('active');
+            
+            setTimeout(() => {
+                container.innerHTML = '';
+                let html = '';
+
+                nextBtn.disabled = (currentPage === pages.length - 1) || !page.isCompleted;
+                prevBtn.disabled = (currentPage === 0 || currentPage === pages.length - 1);
+                
+                progress.innerText = `Page ${currentPage + 1} / ${pages.length}`;
+
+                switch (page.type) {
+                    case 'cover':
+                        html = `<div class="flex flex-col items-center w-full max-h-full min-h-0"><h2 class="subtitle-main">${page.subtitle}</h2><h1 class="title-main">${page.title}</h1><button onclick="movePage(1)" class="mt-4 px-10 py-3 bg-indigo-600 text-white rounded-full text-lg font-bold hover:bg-indigo-700 transition-all shadow-lg shrink-0">${page.btnText}</button></div>`;
+                        nextBtn.style.display = 'none'; prevBtn.style.display = 'none'; break;
+
+                    case 'text':
+                        html = `<div class="flex flex-col items-center w-full max-h-full min-h-0"><p class="desc-text font-medium mt-6">${page.text}</p></div>`;
+                        nextBtn.style.display = 'flex'; prevBtn.style.display = 'flex'; break;
+
+                    case 'concept-card':
+                        html = `
+                            <div class="flex flex-col items-center w-full max-h-full min-h-0">
+                                <div class="char-card mb-6 cursor-default px-6 sm:px-12 py-8 sm:py-10 shrink-0 border-indigo-100 shadow-sm min-w-[250px]">
+                                    <div class="text-indigo-600 font-bold leading-tight text-center tracking-tight" style="font-size: clamp(1.8rem, 4vh, 3rem);">${page.title}</div>
+                                </div>
+                                <p class="desc-text mt-2">${page.text}</p>
+                            </div>
+                        `;
+                        break;
+
+                    case 'diagram':
+                        let diagramHtml = '';
+                        if(page.diagramType === 'na') {
+                            diagramHtml = `
+                                <div class="inline-flex justify-center items-center bg-white px-8 sm:px-12 py-6 sm:py-8 rounded-[2rem] shadow-sm border-2 border-slate-100 mb-8 mx-auto">
+                                    <div class="flex items-end leading-none translate-x-[5%]">
+                                        <span class="text-indigo-500 font-bold" style="font-size: clamp(4.5rem, 12vh, 8rem);">ㄴ</span>
+                                        <span class="text-rose-500 font-bold" style="font-size: clamp(4.5rem, 12vh, 8rem); margin-left: -0.28em;">ㅏ</span>
+                                    </div>
+                                </div>
+                            `;
+                        } else if(page.diagramType === 'o') {
+                            diagramHtml = `
+                                <div class="inline-flex justify-center items-center bg-white px-10 sm:px-14 py-6 sm:py-8 rounded-[2rem] shadow-sm border-2 border-slate-100 mb-8 mx-auto">
+                                    <div class="flex flex-col items-center leading-none">
+                                        <span class="text-indigo-500 font-bold" style="font-size: clamp(4rem, 10vh, 7rem);">ㅇ</span>
+                                        <span class="text-rose-500 font-bold" style="font-size: clamp(4rem, 10vh, 7rem); margin-top: -0.35em;">ㅗ</span>
+                                    </div>
+                                </div>
+                            `;
+                        } else if(page.diagramType === 'na-no') {
+                            diagramHtml = `
+                                <div class="flex flex-row items-center justify-center gap-6 sm:gap-12 mb-8 mx-auto">
+                                    <div class="inline-flex justify-center items-center bg-white px-6 sm:px-8 py-4 sm:py-6 rounded-3xl shadow-sm border-2 border-slate-100">
+                                        <div class="flex items-end leading-none translate-x-[5%]">
+                                            <span class="text-indigo-500 font-bold" style="font-size: clamp(3rem, 8vh, 5.5rem);">ㄴ</span>
+                                            <span class="text-rose-500 font-bold" style="font-size: clamp(3rem, 8vh, 5.5rem); margin-left: -0.28em;">ㅏ</span>
+                                        </div>
+                                    </div>
+                                    <span class="text-slate-300 font-bold text-4xl sm:text-5xl">/</span>
+                                    <div class="inline-flex justify-center items-center bg-white px-6 sm:px-10 py-4 sm:py-6 rounded-3xl shadow-sm border-2 border-slate-100">
+                                        <div class="flex flex-col items-center leading-none">
+                                            <span class="text-indigo-500 font-bold" style="font-size: clamp(2.8rem, 7vh, 4.5rem);">ㄴ</span>
+                                            <span class="text-rose-500 font-bold" style="font-size: clamp(2.8rem, 7vh, 4.5rem); margin-top: -0.35em;">ㅗ</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        } else if(page.diagramType === 'gang') {
+                            diagramHtml = `
+                                <div class="inline-flex justify-center items-center bg-white px-8 sm:px-12 py-6 sm:py-8 rounded-[2rem] shadow-sm border-2 border-slate-100 mb-8 mx-auto">
+                                    <div class="flex flex-col items-center leading-none">
+                                        <div class="flex items-end translate-x-[5%]">
+                                            <span class="text-indigo-500 font-bold" style="font-size: clamp(3.5rem, 9vh, 6rem);">ㄱ</span>
+                                            <span class="text-rose-500 font-bold" style="font-size: clamp(3.5rem, 9vh, 6rem); margin-left: -0.28em;">ㅏ</span>
+                                        </div>
+                                        <span class="text-emerald-500 font-bold" style="font-size: clamp(3.5rem, 9vh, 6rem); margin-top: -0.25em;">ㅇ</span>
+                                    </div>
+                                </div>
+                            `;
+                        }
+
+                        html = `
+                            <div class="flex flex-col items-center w-full max-h-full min-h-0">
+                                ${page.title ? `<div class="char-card w-full max-w-sm mb-6 py-4 px-6 shadow-sm border-slate-200"><h2 class="text-indigo-600 font-bold tracking-tight text-center m-0" style="font-size: clamp(1.5rem, 3.5vh, 2rem);">${page.title}</h2></div>` : ''}
+                                ${diagramHtml}
+                                <p class="desc-text">${page.text}</p>
+                            </div>
+                        `;
+                        break;
+
+                    case 'long-quiz':
+                        html = `
+                            <div class="flex flex-col items-center justify-center w-full max-h-full min-h-0 px-2 sm:px-6 overflow-y-auto">
+                                <!-- 상하 완벽한 대칭을 위한 상단 투명 더미 블록 (하단 피드백과 동일한 높이/마진) -->
+                                <div class="h-8 sm:h-10 w-full !mb-6 sm:!mb-8 opacity-0 pointer-events-none shrink-0"></div>
+                                
+                                <h2 class="subtitle-main text-slate-900 text-center shrink-0 w-full !mt-0 !mb-6 sm:!mb-8">${page.question}</h2>
+                                
+                                <div class="flex flex-col w-full max-w-3xl gap-4 shrink-0 px-2 m-0">
+                                    ${page.options.map((opt, i) => {
+                                        let extraClass = (page.isCompleted && opt === page.answer) ? 'correct' : '';
+                                        let safeOpt = opt.replace(/'/g, "\\'");
+                                        let safeAns = page.answer.replace(/'/g, "\\'");
+                                        return `<button class="quiz-option !text-left !text-base sm:!text-lg !font-medium !px-6 !py-4 ${extraClass}" onclick="checkQuizAnswer(this, '${safeOpt}', '${safeAns}')">
+                                            <span class="font-bold text-indigo-500 mr-2">${String.fromCharCode(97 + i)}.</span> ${opt}
+                                        </button>`;
+                                    }).join('')}
+                                </div>
+                                
+                                <!-- 하단 피드백 영역 -->
+                                <div class="h-8 sm:h-10 w-full !mt-6 sm:!mt-8 shrink-0 flex items-center justify-center">
+                                    <p id="quiz-feedback" class="text-lg font-bold m-0">${page.isCompleted ? '<span class="text-green-500">Excellent !</span>' : ''}</p>
+                                </div>
+                            </div>
+                        `;
+                        break;
+
+                    case 'outro':
+                        html = `<div class="flex flex-col items-center w-full max-h-full min-h-0"><div class="text-5xl shrink-0 text-indigo-500 mb-4"><i class="ph ph-sparkle"></i></div><p class="desc-text font-bold text-center">${page.text}</p></div>`;
+                        nextBtn.style.display = 'none';
+
+                        completionSound.triggerAttackRelease(["E5", "G5", "C6", "E6"], "2n");
+                        
+                        setTimeout(() => {
+                            window.parent.postMessage({ type: 'lesson_complete' }, '*');
+                        }, 1000);
+                        break;
+                }
+
+                container.innerHTML = html;
+                
+                requestAnimationFrame(() => adjustTextFit());
+                container.classList.add('active');
+
+                if (page.audio && page.type !== 'long-quiz') {
+                    playBackgroundAudio(page.audio, 500);
+                }
+            }, 50);
+        }
+
+        function adjustTextFit() {
+            const descTexts = document.querySelectorAll('.desc-text');
+            descTexts.forEach(descText => {
+                descText.style.fontSize = '';
+                descText.style.lineHeight = '';
+                
+                let size = parseFloat(window.getComputedStyle(descText).fontSize);
+                let attempts = 40; 
+                const minSize = 13; 
+                
+                while (descText.scrollHeight > descText.clientHeight + 2 && size > minSize && attempts > 0) {
+                    size -= 0.5;
+                    descText.style.fontSize = size + 'px';
+                    descText.style.lineHeight = '1.35';
+                    attempts--;
+                }
+            });
+        }
+
+        function checkQuizAnswer(btn, selected, correct) {
+            const page = pages[currentPage];
+            if (page.isCompleted) return;
+            const feedback = document.getElementById('quiz-feedback');
+            if (selected === correct) {
+                btn.classList.add('correct');
+                feedback.innerHTML = '<span class="text-green-500">Excellent !</span>';
+                correctSound.triggerAttackRelease(['G5', 'C6'], '4n');
+                page.isCompleted = true;
+                document.getElementById('next-btn').disabled = false;
+            } else {
+                btn.classList.add('wrong');
+                feedback.innerHTML = '<span class="text-red-500">Réessayez !</span>';
+                wrongSound.triggerAttackRelease(['G3', 'F3'], '8n');
+                setTimeout(() => btn.classList.remove('wrong'), 1000);
+            }
+        }
+    </script>
+</body>
+</html>
