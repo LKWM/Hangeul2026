@@ -263,10 +263,10 @@
             { type: 'text', text: "Bonjour ! Bienvenue dans la dernière leçon pour apprendre le hangeul. Les lettres que nous allons apprendre aujourd'hui ont des points d'articulation légèrement différents en position initiale, mais en position finale, elles se neutralisent toutes en un seul son.", audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774854240/14-1_lgtwxn.wav', isCompleted: true },
             { type: 'char-no-audio', char: 'ㄷ, ㅌ, ㅅ, ㅆ, ㅈ, ㅊ', text: "Toutes les consonnes alvéolaires et palatales sont représentées par « ㄷ ». La prononciation se réalise en touchant la gencive et s'arrête dans cette position sans décoller la langue de la gencive. Même les lettres qui se prononcent en touchant le palais ou en laissant l'air s'échapper sans toucher le palais en position initiale, sont toutes représentées par « ㄷ » en position finale et se prononcent donc en plaquant la langue contre les gencives.", audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774854244/14-2_iudjxm.wav', isCompleted: true },
             { type: 'grid-chars', chars: ['읻', '잍', '잇', '있', '잊', '잋', '잏'], ipa: '/id/', charAudio: SOUNDS.읻, isCompleted: true },
-            { type: 'speech', text: 'Répétez après moi !', target: '숟가락', ipa: '/sut.ga.ɾak/', subtitle: 'Cuillère', audio: SOUNDS.숟가락, isCompleted: false },
-            { type: 'speech', text: 'Répétez après moi !', target: '밭', ipa: '/bat/', subtitle: 'Champ', audio: SOUNDS.밭, isCompleted: false },
-            { type: 'speech', text: 'Répétez après moi !', target: '씻다', ipa: '/ʃit.da/', subtitle: 'Se laver', audio: SOUNDS.씻다, isCompleted: false },
-            { type: 'speech', text: 'Répétez après moi !', target: '있다', ipa: '/it.da/', subtitle: "S'exister", audio: SOUNDS.있다, isCompleted: false },
+            { type: 'speech', text: 'Répétez après moi !', target: '숟가락', ipa: '/sud.ga.ɾak/', subtitle: 'Cuillère', audio: SOUNDS.숟가락, isCompleted: false },
+            { type: 'speech', text: 'Répétez après moi !', target: '밭', ipa: '/bad/', subtitle: 'Champ', audio: SOUNDS.밭, isCompleted: false },
+            { type: 'speech', text: 'Répétez après moi !', target: '씻다', ipa: '/ʃid.da/', subtitle: 'Se laver', audio: SOUNDS.씻다, isCompleted: false },
+            { type: 'speech', text: 'Répétez après moi !', target: '있다', ipa: '/id.da/', subtitle: "S'exister", audio: SOUNDS.있다, isCompleted: false },
             { type: 'speech', text: 'Répétez après moi !', target: '낮', ipa: '/nad/', subtitle: 'Journée', audio: SOUNDS.낮, isCompleted: false },
             { type: 'speech', text: 'Répétez après moi !', target: '꽃', ipa: '/k͈od/', subtitle: 'Fleur', audio: SOUNDS.꽃, isCompleted: false },
             { type: 'char-no-audio', char: 'ㅎ', subtitle: 'à la position finale', text: "Selon les règles de prononciation, « ㅎ » se prononce comme « ㄷ » en position finale, mais en réalité, les mots se terminant par « ㅎ » en position finale sont très rares. On trouve principalement « ㅎ » dans le radical des verbes ou des adjectifs. Dans ce cas, en se conjuguant, d'autres sons suivent, et la lettre se prononce selon les règles de liaison qui la relient à ces sons.", audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774854260/14-3_aal3og.wav', isCompleted: true },
@@ -491,7 +491,7 @@
                         break;
 
                     case 'pre-outro':
-                        html = `<div class="flex flex-col items-center w-full max-h-full min-h-0"><div class="text-5xl shrink-0 text-indigo-400 mb-4"><i class="ph ph-medal"></i></div><p class="desc-text font-medium text-center">${page.text}</p></div>`;
+                        html = `<div class="flex flex-col items-center w-full max-h-full min-h-0"><div class="text-5xl shrink-0 text-indigo-500 mb-4"><i class="ph ph-medal"></i></div><p class="desc-text font-medium text-center">${page.text}</p></div>`;
                         nextBtn.style.display = 'flex';
 
                         completionSound.triggerAttackRelease(["E5", "G5", "C6", "E6"], "2n");
@@ -502,7 +502,7 @@
                         break;
 
                     case 'outro':
-                        html = `<div class="flex flex-col items-center w-full max-h-full min-h-0"><div class="text-5xl shrink-0 text-indigo-500 mb-4"><i class="ph ph-sparkle"></i></div><p class="desc-text font-bold text-center">${page.text}</p></div>`;
+                        html = `<div class="flex flex-col items-center w-full max-h-full min-h-0"><div class="text-5xl shrink-0 text-indigo-500 mb-4"><i class="ph ph-sparkle"></i></div><p class="desc-text font-medium text-center">${page.text}</p></div>`;
                         nextBtn.style.display = 'none';
                         break;
                 }
