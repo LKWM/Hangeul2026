@@ -262,7 +262,7 @@
             { type: 'cover', subtitle: 'Chapitre 6 - Les consonnes finales', title: 'Leçon 14 - ㄷ, ㅌ, ㅅ, ㅆ, ㅈ, ㅊ, ㅎ à la position finale', btnText: 'Commencer', isCompleted: true },
             { type: 'text', text: "Bonjour ! Bienvenue dans la dernière leçon pour apprendre le hangeul. Les lettres que nous allons apprendre aujourd'hui ont des points d'articulation légèrement différents en position initiale, mais en position finale, elles se neutralisent toutes en un seul son.", audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774854240/14-1_lgtwxn.wav', isCompleted: true },
             { type: 'char-no-audio', char: 'ㄷ, ㅌ, ㅅ, ㅆ, ㅈ, ㅊ', text: "Toutes les consonnes alvéolaires et palatales sont représentées par « ㄷ ». La prononciation se réalise en touchant la gencive et s'arrête dans cette position sans décoller la langue de la gencive. Même les lettres qui se prononcent en touchant le palais ou en laissant l'air s'échapper sans toucher le palais en position initiale, sont toutes représentées par « ㄷ » en position finale et se prononcent donc en plaquant la langue contre les gencives.", audio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774854244/14-2_iudjxm.wav', isCompleted: true },
-            { type: 'grid-chars', chars: ['읻', '잍', '잇', '있', '잊', '잋', '잏'], ipa: '/id/', audio: SOUNDS.읻, text: "Ces 7 lettres partagent toutes exactement la même prononciation en position finale.", isCompleted: true },
+            { type: 'grid-chars', chars: ['읻', '잍', '잇', '있', '잊', '잋', '잏'], ipa: '/id/', charAudio: SOUNDS.읻, isCompleted: true },
             { type: 'speech', text: 'Répétez après moi !', target: '숟가락', ipa: '/sut.ga.ɾak/', subtitle: 'Cuillère', audio: SOUNDS.숟가락, isCompleted: false },
             { type: 'speech', text: 'Répétez après moi !', target: '밭', ipa: '/bat/', subtitle: 'Champ', audio: SOUNDS.밭, isCompleted: false },
             { type: 'speech', text: 'Répétez après moi !', target: '씻다', ipa: '/ʃit.da/', subtitle: 'Se laver', audio: SOUNDS.씻다, isCompleted: false },
@@ -417,7 +417,7 @@
                             <div class="flex flex-col items-center w-full max-h-full min-h-0">
                                 <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-4 w-full max-w-2xl mb-6 shrink-0 px-2">
                                     ${page.chars.map(c => `
-                                        <div class="char-card !min-w-0 px-2 py-3 sm:px-4 sm:py-5 hover:scale-105 cursor-pointer border-indigo-100" onclick="playInteractionAudio('${page.audio}')">
+                                        <div class="char-card !min-w-0 px-2 py-3 sm:px-4 sm:py-5 hover:scale-105 cursor-pointer border-indigo-100" onclick="playInteractionAudio('${page.charAudio}')">
                                             <div class="hangeul-large text-indigo-600" style="font-size: clamp(2rem, 5vh, 3.5rem);">${c}</div>
                                             <p class="text-indigo-400 font-bold text-xs sm:text-sm mt-2 text-center px-1 leading-tight tracking-normal normal-case">${page.ipa}</p>
                                             <div class="mt-1 sm:mt-2 text-indigo-300"><i class="ph ph-speaker-high text-base sm:text-lg"></i></div>
