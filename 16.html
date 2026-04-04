@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leçon 16 - Vocabulaire (2)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Poppins:wght@400;600&display=swap');
+
+        :root {
+            --primary: #4F46E5;
+            --primary-dark: #3730A3;
+            --bg-color: #F8FAFC;
+            --nav-height: 70px;
+        }
+
+        body {
+            font-family: 'Poppins', 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            overflow: hidden; 
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            color: #1E293B;
+        }
+
+        .app-container {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2vh 4vw;
+            box-sizing: border-box;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .content-box {
+            width: 100%;
+            max-width: 1200px;
+            max-height: 100%;
+            min-height: 0;
+            margin: auto;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s ease-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-box.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .title-main {
+            font-size: clamp(1.5rem, 5vh, 3.5rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1.5vh;
+            flex-shrink: 0;
+        }
+
+        .subtitle-main {
+            font-size: clamp(1rem, 2.5vh, 1.5rem);
+            color: var(--primary);
+            font-weight: 500;
+            margin-bottom: 1vh;
+            flex-shrink: 0;
+        }
+
+        .desc-text {
+            font-size: clamp(1rem, 2.5vh, 1.7rem);
+            line-height: 1.5;
+            max-width: 800px;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            flex-shrink: 1;
+            min-height: 0; 
+            overflow-y: auto;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .desc-text::-webkit-scrollbar { width: 6px; }
+        .desc-text::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+
+        .char-card {
+            background: white;
+            border-radius: clamp(1rem, 3vh, 2rem);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            padding: clamp(1rem, 4vh, 3rem);
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: clamp(120px, 20vw, 320px);
+            max-height: 55vh;
+            border: 2px solid #F1F5F9;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+        }
+
+        .nav-bar {
+            width: 100%;
+            height: var(--nav-height);
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #E2E8F0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+            z-index: 100;
+            box-sizing: border-box;
+        }
+
+        .btn-nav {
+            padding: 0.6rem clamp(1rem, 2vw, 1.5rem);
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: clamp(0.875rem, 2vh, 1rem);
+        }
+
+        .btn-nav:disabled { opacity: 0.2; cursor: not-allowed; }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-secondary { color: #64748B; border: 1px solid #CBD5E1; }
+
+        .quiz-option { cursor: pointer; user-select: none; }
+        .quiz-option.selected { border-color: var(--primary); background: #EEF2FF; color: var(--primary-dark); transform: scale(1.02); }
+        .quiz-option.correct { border-color: #10B981 !important; background: #ECFDF5 !important; color: #059669 !important; }
+        .quiz-option.wrong { border-color: #EF4444 !important; background: #FEF2F2 !important; color: #DC2626 !important; }
+
+        .mic-btn {
+            width: clamp(60px, 10vh, 90px);
+            height: clamp(60px, 10vh, 90px);
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.5rem, 4vh, 2.5rem);
+            margin: 2vh auto;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .mic-btn:disabled { background: #CBD5E1; }
+        .mic-btn.recording { background: #EF4444; animation: pulse 1.5s infinite; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .status-large { font-size: clamp(1.2rem, 3.5vh, 1.8rem); font-weight: 600; }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .animate-shake { animation: shake 0.4s; }
+
+        @media (max-width: 640px) { .nav-bar { padding: 0 1rem; } .btn-nav span { display: none; } }
+    </style>
+</head>
+<body>
+
+    <main class="app-container">
+        <div id="lesson-content" class="content-box"></div>
+    </main>
+
+    <nav class="nav-bar">
+        <button id="prev-btn" class="btn-nav btn-secondary" onclick="movePage(-1)">
+            <i class="ph ph-caret-left"></i> <span>Précédent</span>
+        </button>
+        <div id="progress" class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest text-center"></div>
+        <button id="next-btn" class="btn-nav btn-primary" onclick="movePage(1)">
+            <span>Suivant</span> <i class="ph ph-caret-right"></i>
+        </button>
+    </nav>
+
+    <script>
+        const pages = [
+            { type: 'cover', subtitle: 'Chapitre 7 - Les exercices supplémentaires', title: 'Leçon 16 - Vocabulaire (2)', btnText: 'Commencer', isCompleted: true },
+            { type: 'speech', mode: 'repeat-2tries', text: 'Répétez après moi.', display: '여름', sub1: '[jʌɾɯm]', sub2: 'Été', target: '여름', targetAudio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774633881/%E1%84%8B%E1%85%A7%E1%84%85%E1%85%B3%E1%86%B7_iylz6i.mp3', isCompleted: false },
+            { type: 'text-card', text: "La prononciation de la consonne finale s'arrête avec les organes articulatoires fermés. Faites attention, car si vous prononcez le son jusqu'au bout comme en français, cela sonnera de manière très peu naturelle !", isCompleted: true },
+            { type: 'speech', mode: 'repeat-2tries', text: 'Répétez après moi.', display: '공원', sub1: '[koŋwʌn]', sub2: 'Parc', target: '공원', targetAudio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774769533/%E1%84%80%E1%85%A9%E1%86%BC%E1%84%8B%E1%85%AF%E1%86%AB_pav3um.mp3', isCompleted: false },
+            { type: 'speech', mode: 'repeat-2tries', text: 'Répétez après moi.', display: '씻다', sub1: '[ɕit̚t͈a]', sub2: 'Se laver', target: '씻다', targetAudio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774854650/%E1%84%8A%E1%85%B5%E1%86%BA%E1%84%83%E1%85%A1_igllvx.wav', isCompleted: false },
+            { type: 'speech', mode: 'repeat-2tries', text: 'Répétez après moi.', display: '숟가락', sub1: '[sut̚k͈aɾak̚]', sub2: 'Cuillère', target: '숟가락', targetAudio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774854650/%E1%84%89%E1%85%AE%E1%86%AE%E1%84%80%E1%85%A1%E1%84%85%E1%85%A1%E1%86%A8_fv8d0l.wav', isCompleted: false },
+            { type: 'single-quiz', instruction: 'Choisissez la bonne signification.', quizAudio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774769533/%E1%84%80%E1%85%A9%E1%86%BC%E1%84%8B%E1%85%AF%E1%86%AB_pav3um.mp3', options: ['Été', 'Parc', 'Se laver', 'Cuillère'], answer: 'Parc', isCompleted: false },
+            { type: 'single-quiz', instruction: 'Choisissez la bonne signification.', quizAudio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774854650/%E1%84%8A%E1%85%B5%E1%86%BA%E1%84%83%E1%85%A1_igllvx.wav', options: ['Été', 'Parc', 'Se laver', 'Cuillère'], answer: 'Se laver', isCompleted: false },
+            { type: 'single-quiz', instruction: 'Choisissez la bonne signification.', questionText: '&lt;숟가락&gt;', options: ['Été', 'Parc', 'Se laver', 'Cuillère'], answer: 'Cuillère', isCompleted: false },
+            { type: 'single-quiz', instruction: 'Choisissez la bonne signification.', questionText: '&lt;여름&gt;', options: ['Été', 'Parc', 'Se laver', 'Cuillère'], answer: 'Été', isCompleted: false },
+            { type: 'speech', mode: 'speaking', text: 'Parlez en coréen.', display: '__', sub2: 'Été', target: '여름', targetAudio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774633881/%E1%84%8B%E1%85%A7%E1%84%85%E1%85%B3%E1%86%B7_iylz6i.mp3', isCompleted: false, threshold: 70 },
+            { type: 'speech', mode: 'speaking', text: 'Parlez en coréen.', display: '__', sub2: 'Parc', target: '공원', targetAudio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774769533/%E1%84%80%E1%85%A9%E1%86%BC%E1%84%8B%E1%85%AF%E1%86%AB_pav3um.mp3', isCompleted: false, threshold: 70 },
+            { type: 'speech', mode: 'speaking', text: 'Parlez en coréen.', display: '__', sub2: 'Se laver', target: '씻다', targetAudio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774854650/%E1%84%8A%E1%85%B5%E1%86%BA%E1%84%83%E1%85%A1_igllvx.wav', isCompleted: false, threshold: 70 },
+            { type: 'speech', mode: 'speaking', text: 'Parlez en coréen.', display: '__', sub2: 'Cuillère', target: '숟가락', targetAudio: 'https://res.cloudinary.com/de76i94ia/video/upload/v1774854650/%E1%84%89%E1%85%AE%E1%86%AE%E1%84%80%E1%85%A1%E1%84%85%E1%85%A1%E1%86%A8_fv8d0l.wav', isCompleted: false, threshold: 70 },
+            { type: 'outro', text: "Vraiment bien joué ! Vous êtes maintenant prêt à suivre les cours de votre choix au niveau A1. Trouvez un programme de l'étape suivante sur CoréenO et commencez à approfondir votre étude du coréen.", isCompleted: true }
+        ];
+
+        let currentPage = 0;
+        let currentAudio = null;
+        let interactionAudio = null;
+        let backgroundAudioTimeout = null;
+        let transitionSynth, correctSound, completionSound, wrongSound;
+        let mediaRecorder;
+        let audioChunks = [];
+        let currentStream = null;
+        let speechTries = 0;
+        let recordingTimer = null;
+        const RECORDING_LIMIT = 6000; 
+        const CLOVA_API_FUNCTION_URL = 'https://coreeno.base44.app/api/functions/naverClovaSpeech';
+
+        window.onload = () => {
+            Tone.Destination.volume.value = -8;
+            transitionSynth = new Tone.Synth().toDestination();
+            correctSound = new Tone.PolySynth().toDestination();
+            wrongSound = new Tone.PolySynth().toDestination();
+            completionSound = new Tone.PolySynth().toDestination();
+            renderPage();
+            window.addEventListener('blur', stopAllAudio);
+            window.addEventListener('resize', adjustTextFit);
+        };
+
+        function stopAllAudio() {
+            if (backgroundAudioTimeout) { clearTimeout(backgroundAudioTimeout); backgroundAudioTimeout = null; }
+            if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; currentAudio = null; }
+            if (interactionAudio) { interactionAudio.pause(); interactionAudio.currentTime = 0; interactionAudio = null; }
+        }
+
+        function playInteractionAudio(url, onEndedCallback = null) {
+            if (!url) { if (onEndedCallback) onEndedCallback(); return; }
+            if (backgroundAudioTimeout) { clearTimeout(backgroundAudioTimeout); backgroundAudioTimeout = null; }
+            if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; currentAudio = null; }
+            if (interactionAudio) { interactionAudio.pause(); interactionAudio.currentTime = 0; }
+            interactionAudio = new Audio(url);
+            if (onEndedCallback) interactionAudio.onended = onEndedCallback;
+            interactionAudio.play().catch(e => { if (onEndedCallback) onEndedCallback(); });
+        }
+
+        window.playInteractionWithMicLock = function(url) {
+            const micBtn = document.getElementById('mic-btn');
+            if (micBtn && micBtn.classList.contains('recording')) return;
+            if (micBtn) { micBtn.disabled = true; micBtn.classList.add('opacity-50', 'cursor-not-allowed'); }
+            playInteractionAudio(url, () => {
+                const btn = document.getElementById('mic-btn');
+                if (btn && !btn.classList.contains('recording')) {
+                    btn.disabled = false; btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            });
+        };
+
+        function movePage(step) {
+            const nextIdx = currentPage + step;
+            if (nextIdx >= 0 && nextIdx < pages.length) {
+                stopAllAudio();
+                stopMicrophone(); 
+                transitionSynth.triggerAttackRelease("C4", "8n");
+                currentPage = nextIdx;
+                speechTries = 0; 
+                renderPage();
+            }
+        }
+
+        function renderPage() {
+            const page = pages[currentPage];
+            const container = document.getElementById('lesson-content');
+            const nextBtn = document.getElementById('next-btn');
+            const prevBtn = document.getElementById('prev-btn');
+            const progress = document.getElementById('progress');
+            const navBar = document.querySelector('.nav-bar');
+
+            progress.innerText = `Page ${currentPage + 1} / ${pages.length}`;
+            container.classList.remove('active');
+            
+            setTimeout(() => {
+                container.innerHTML = '';
+                let html = '';
+
+                // 마지막 페이지 도달 시 처리
+                if (currentPage === pages.length - 1) { 
+                    navBar.style.display = 'none'; 
+                    if (!window.lessonCompletedSent) {
+                        window.parent.postMessage({ type: 'lesson_complete' }, '*');
+                        window.lessonCompletedSent = true;
+                        completionSound.triggerAttackRelease(["E5", "G5", "C6", "E6"], "2n");
+                    }
+                } else {
+                    navBar.style.display = 'flex';
+                    nextBtn.disabled = !page.isCompleted;
+                    prevBtn.disabled = (currentPage === 0);
+                    nextBtn.style.display = (currentPage === 0) ? 'none' : 'flex';
+                    prevBtn.style.display = (currentPage === 0) ? 'none' : 'flex';
+                }
+
+                switch (page.type) {
+                    case 'cover':
+                        html = `<div class="flex flex-col items-center w-full"><h2 class="subtitle-main">${page.subtitle}</h2><h1 class="title-main">${page.title}</h1><button onclick="movePage(1)" class="mt-4 px-10 py-3 bg-indigo-600 text-white rounded-full text-lg font-bold hover:bg-indigo-700 transition-all shadow-lg shrink-0">${page.btnText}</button></div>`;
+                        break;
+
+                    case 'text-card':
+                        html = `<div class="flex flex-col items-center w-full justify-center flex-1"><p class="desc-text font-medium text-center px-4 max-w-3xl">${page.text}</p></div>`;
+                        break;
+
+                    case 'single-quiz':
+                        html = `
+                            <div class="flex flex-col items-center w-full max-h-full min-h-0 justify-center flex-1">
+                                <h2 class="subtitle-main text-slate-900 mb-6 text-center px-4 max-w-2xl">${page.instruction}</h2>
+                                ${page.questionText ? `<div class="font-bold text-slate-800 text-3xl sm:text-5xl mb-8">${page.questionText}</div>` : ''}
+                                ${page.quizAudio ? `<button onclick="playInteractionAudio('${page.quizAudio}')" class="w-16 h-16 shrink-0 rounded-full bg-indigo-50 text-indigo-600 text-2xl flex items-center justify-center hover:bg-indigo-100 transition-all shadow-inner mb-6"><i class="ph ph-speaker-high"></i></button>` : ''}
+                                <div class="flex flex-col sm:flex-row flex-wrap justify-center gap-2 sm:gap-3 w-full max-w-3xl px-2">
+                                    ${page.options.map(opt => `
+                                        <button class="quiz-option px-4 py-2 sm:px-6 sm:py-3 text-base sm:text-xl font-bold rounded-xl border-2 border-slate-200 bg-white hover:border-indigo-300 transition-all ${page.isCompleted && page.answer === opt ? 'correct' : ''}" onclick="validateSingleQuiz(this, '${opt}')">${opt}</button>
+                                    `).join('')}
+                                </div>
+                                <div class="h-14 mt-4 flex items-center justify-center shrink-0 w-full relative">
+                                    <p id="quiz-feedback" class="text-base sm:text-lg font-bold m-0 text-center w-full absolute" ${!page.isCompleted ? 'style="display:none;"' : ''}>${page.isCompleted ? '<span class="text-green-500">Excellent !</span>' : ''}</p>
+                                </div>
+                            </div>
+                        `;
+                        break;
+
+                    case 'speech':
+                        const showAudio = (page.mode === 'repeat-2tries') || page.revealed || page.isCompleted;
+                        const displayText = (page.mode === 'speaking') ? (page.revealed ? page.target : page.display) : page.display;
+                        const textStatusColor = (page.mode === 'speaking' && page.revealed && !page.isCompleted) ? 'text-red-500' : (page.isCompleted && page.score >= (page.threshold || 50) ? 'text-green-500' : 'text-indigo-600');
+                        
+                        html = `
+                            <div class="flex flex-col items-center w-full">
+                                <h2 class="subtitle-main text-slate-900 mb-4">${page.text}</h2>
+                                <div class="char-card shrink-0 mb-4 ${showAudio ? 'cursor-pointer hover:scale-105 hover:shadow-lg hover:border-indigo-300' : 'cursor-default'} transition-all border-2 border-slate-100" ${showAudio ? `onclick="playInteractionWithMicLock('${page.targetAudio}')"` : ''}>
+                                    <div id="target-char" class="font-bold tracking-tight text-center leading-tight transition-colors duration-500 ${textStatusColor}" style="font-size: clamp(2rem, 6vh, 4rem);">${displayText}</div>
+                                    ${page.sub1 ? `<p class="text-indigo-400 font-bold tracking-widest text-sm sm:text-base mt-3 text-center px-2">${page.sub1}</p>` : ''}
+                                    ${page.sub2 ? `<p class="text-slate-600 font-medium text-sm sm:text-base mt-1 text-center px-4">${page.sub2}</p>` : ''}
+                                    <div class="mt-3 bg-indigo-50 text-indigo-500 rounded-full p-2 hover:bg-indigo-100 transition-colors ${showAudio ? 'block' : 'invisible'}">
+                                        <i class="ph ph-speaker-high text-2xl"></i>
+                                    </div>
+                                </div>
+                                <div id="speech-ui-container" class="flex flex-col items-center shrink-0 min-h-[140px]">
+                                    ${page.isCompleted ? `
+                                        <div class="mic-btn opacity-40 mb-2"><i class="ph ph-check"></i></div>
+                                        <p class="${page.score >= (page.threshold || 50) || page.mode === 'repeat-2tries' ? 'text-green-500' : 'text-indigo-500'} font-bold status-large mb-2">${page.mode === 'speaking' && page.score < (page.threshold || 50) ? 'Bien essayé !' : 'Très bien !'}</p>
+                                        ${page.score !== undefined ? `<div class="bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-2 flex items-center gap-2"><i class="ph ph-target text-indigo-500 text-xl"></i><span class="text-indigo-600 font-bold">Précision : ${page.score}%</span></div>` : ''}
+                                    ` : `
+                                        <button id="mic-btn" class="mic-btn" onclick="toggleRecording('${page.target}')"><i class="ph ph-microphone"></i></button>
+                                        <p id="speech-status" class="text-slate-500 font-medium text-sm transition-all duration-300 mt-2 text-center px-4">Cliquez sur le micro pour parler</p>
+                                        <p id="speech-tries" class="text-[10px] text-slate-400 mt-1 uppercase tracking-widest">Essai: ${speechTries} / 2</p>
+                                        ${page.score !== undefined && page.mode === 'repeat-2tries' ? `<p class="text-indigo-500 font-bold text-sm mt-1">Dernier score : ${page.score}%</p>` : ''}
+                                    `}
+                                </div>
+                            </div>
+                        `;
+                        break;
+
+                    case 'outro':
+                        html = `<div class="flex flex-col items-center w-full"><div class="text-5xl shrink-0 text-indigo-500 mb-4"><i class="ph ph-sparkle"></i></div><p class="desc-text font-medium text-center px-4 max-w-3xl">${page.text}</p></div>`;
+                        break;
+                }
+
+                container.innerHTML = html;
+                requestAnimationFrame(() => adjustTextFit());
+                container.classList.add('active');
+
+                // 진입 시 오디오 자동 재생 및 마이크 제어 (repeat 모드)
+                if (page.type === 'speech' && !page.isCompleted) {
+                    if (page.mode === 'repeat-2tries' && speechTries === 0) {
+                        setTimeout(() => playInteractionWithMicLock(page.targetAudio), 500);
+                    }
+                }
+            }, 50);
+        }
+
+        function adjustTextFit() {
+            const descTexts = document.querySelectorAll('.desc-text');
+            descTexts.forEach(descText => {
+                descText.style.fontSize = ''; descText.style.lineHeight = '';
+                let size = parseFloat(window.getComputedStyle(descText).fontSize);
+                let attempts = 40; const minSize = 13; 
+                while (descText.scrollHeight > descText.clientHeight + 2 && size > minSize && attempts > 0) {
+                    size -= 0.5; descText.style.fontSize = size + 'px'; descText.style.lineHeight = '1.35'; attempts--;
+                }
+            });
+        }
+
+        window.validateSingleQuiz = function(btn, selected) {
+            const page = pages[currentPage]; if (page.isCompleted) return;
+            if (selected === page.answer) {
+                btn.classList.add('correct'); correctSound.triggerAttackRelease(['G5', 'C6'], '4n');
+                document.getElementById('quiz-feedback').innerHTML = '<span class="text-green-500">Excellent !</span>';
+                document.getElementById('quiz-feedback').style.display = 'block';
+                page.isCompleted = true; document.getElementById('next-btn').disabled = false;
+            } else {
+                btn.classList.add('wrong', 'animate-shake'); wrongSound.triggerAttackRelease(['G3', 'F3'], '8n');
+                setTimeout(() => btn.classList.remove('wrong', 'animate-shake'), 1000);
+            }
+        };
+
+        async function toggleRecording(target) {
+            const btn = document.getElementById('mic-btn'); if (!btn || btn.disabled) return;
+            if (btn.classList.contains('recording')) { stopRecordingManually(); } else {
+                try {
+                    currentStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(currentStream); audioChunks = [];
+                    mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
+                    mediaRecorder.onstop = async () => {
+                        const blob = new Blob(audioChunks, { type: 'audio/wav' });
+                        const reader = new FileReader(); reader.readAsDataURL(blob);
+                        reader.onloadend = async () => { verifySpeech(reader.result.split(',')[1], target); };
+                        stopMicrophone(); // 즉시 시스템 마이크 종료
+                    };
+                    mediaRecorder.start(); btn.classList.add('recording');
+                    recordingTimer = setTimeout(() => { if (mediaRecorder.state === "recording") stopRecordingManually(); }, RECORDING_LIMIT);
+                } catch (err) {}
+            }
+        }
+
+        function stopRecordingManually() { if (mediaRecorder && mediaRecorder.state === "recording") mediaRecorder.stop(); const btn = document.getElementById('mic-btn'); if (btn) btn.classList.remove('recording'); clearTimeout(recordingTimer); }
+        function stopMicrophone() { if (currentStream) { currentStream.getTracks().forEach(track => track.stop()); currentStream = null; } }
+
+        async function verifySpeech(audioBase64, referenceText) {
+            const page = pages[currentPage]; const maxTries = 2;
+            speechTries++;
+            
+            const triesDisplay = document.getElementById('speech-tries');
+            if (triesDisplay) triesDisplay.innerText = `Essai: ${speechTries} / ${maxTries}`;
+            
+            try {
+                const res = await fetch(CLOVA_API_FUNCTION_URL, { 
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ audioBase64: audioBase64, languageCode: "Kor", referenceText: referenceText }) 
+                });
+                const result = await res.json();
+                let recognizedText = result.text || result.recognizedText || "";
+                let score = result.score || calculateSimilarity(referenceText, recognizedText);
+                
+                if (page.mode === 'repeat-2tries') {
+                    page.score = score;
+                    page.revealed = true;
+                    if (speechTries === 1) {
+                        renderPage();
+                        const status = document.getElementById('speech-status');
+                        if (status) { status.innerText = `Écoutez et essayez encore !`; status.className = "text-indigo-500 font-bold mt-2 text-center px-4"; }
+                        // 1회차 완료 시 2회차 대비 오디오 자동 재생
+                        setTimeout(() => playInteractionWithMicLock(page.targetAudio), 400);
+                    } else if (speechTries >= 2) {
+                        page.isCompleted = true;
+                        correctSound.triggerAttackRelease(['G5', 'C6'], '4n');
+                        document.getElementById('next-btn').disabled = false;
+                        renderPage();
+                    }
+                } else if (page.mode === 'speaking') {
+                    page.score = score;
+                    if (score >= (page.threshold || 70)) {
+                        page.isCompleted = true;
+                        page.revealed = true;
+                        correctSound.triggerAttackRelease(['G5', 'C6'], '4n');
+                        document.getElementById('next-btn').disabled = false;
+                        renderPage();
+                    } else if (speechTries >= maxTries) {
+                        page.isCompleted = true;
+                        page.revealed = true;
+                        wrongSound.triggerAttackRelease(['G3', 'F3'], '8n');
+                        document.getElementById('next-btn').disabled = false;
+                        renderPage(); 
+                    } else {
+                        page.revealed = true;
+                        wrongSound.triggerAttackRelease(['G3', 'F3'], '8n');
+                        renderPage();
+                        const status = document.getElementById('speech-status');
+                        if (status) { status.innerText = "Essayons encore une fois !"; status.className = "text-orange-500 font-bold mt-2 text-center px-4"; }
+                    }
+                }
+            } catch (error) { 
+                if (speechTries >= maxTries) { 
+                    page.isCompleted = true; 
+                    page.revealed = true;
+                    document.getElementById('next-btn').disabled = false; 
+                    renderPage(); 
+                }
+            }
+        }
+
+        function calculateSimilarity(ref, hyp) {
+            ref = ref.replace(/[?.,!\s]/g, ''); hyp = hyp.replace(/[?.,!\s]/g, ''); 
+            if (ref === hyp) return 100;
+            const matrix = Array.from({ length: ref.length + 1 }, (_, i) => [i]);
+            for (let j = 1; j <= hyp.length; j++) matrix[0][j] = j;
+            for (let i = 1; i <= ref.length; i++) 
+                for (let j = 1; j <= hyp.length; j++) 
+                    matrix[i][j] = ref[i-1] === hyp[j-1] ? matrix[i-1][j-1] : Math.min(matrix[i-1][j-1]+1, matrix[i][j-1]+1, matrix[i-1][j]+1);
+            return Math.max(0, Math.round(((Math.max(ref.length, hyp.length) - matrix[ref.length][hyp.length]) / Math.max(ref.length, hyp.length)) * 100));
+        }
+    </script>
+</body>
+</html>
