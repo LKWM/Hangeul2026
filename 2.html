@@ -502,7 +502,7 @@
                     audioChunks = [];
                     mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
                     mediaRecorder.onstop = async () => {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                         const reader = new FileReader();
                         reader.readAsDataURL(audioBlob);
                         reader.onloadend = async () => {
@@ -558,7 +558,7 @@
                         role: "user",
                         parts: [
                             { text: "Analyze the audio response." },
-                            { inline_data: { mime_type: "audio/wav", data: audioBase64 } }
+                            { inline_data: { mime_type: "audio/webm", data: audioBase64 } }
                         ]
                     }],
                     systemInstruction: "유저 발화를 한글로 전사하시오."
