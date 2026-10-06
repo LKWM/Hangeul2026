@@ -315,8 +315,37 @@
         const MAX_TRIES = 2;
         const RECORDING_LIMIT = 6000; 
 
-        const BASE_44_ORIGIN = "https://coreeno.base44.app";
-        const CLOVA_API_FUNCTION_URL = BASE_44_ORIGIN + '/api/functions/naverClovaSpeech';
+                const BASE_44_ORIGIN = "https://coreeno.base44.app";
+        const GEMINI_URL = 'https://coreeno.base44.app/functions/GeminiChatSecure';
+        const CLOVA_API_FUNCTION_URL = GEMINI_URL;
+
+        let lessonPermit = null;
+        let lessonId = null;
+        let geminiErrorStreak = 0;
+
+        window.addEventListener("message", (event) => {
+            if (event.data?.type !== "coreeno:permit") return;
+            lessonPermit = event.data.permit;
+            lessonId = event.data.lesson_id;
+        });
+
+        function geminiErrorMessage(error) {
+            const msg = (error && error.message) || String(error);
+            if (msg.indexOf('Lesson permit') !== -1) {
+                return "Permis d'accès indisponible. Veuillez actualiser la page et réessayer.";
+            }
+            const m = msg.match(/API status: (\d+)/);
+            if (m) {
+                const status = parseInt(m[1], 10);
+                if (status === 401 || status === 403) return "Permis d'accès expiré. Veuillez actualiser la page et réessayer.";
+                if (status === 429) return "Limite d'utilisation atteinte. Veuillez réessayer dans quelques instants. Si l'erreur persiste, signalez un bug.";
+                if (status >= 500) return "Erreur du serveur. Veuillez réessayer dans quelques instants. Si l'erreur persiste, signalez un bug.";
+                return "Erreur inattendue. Si le problème persiste, signalez un bug.";
+            }
+            geminiErrorStreak++;
+            if (geminiErrorStreak >= 2) return "Erreur de connexion. Si le problème persiste, signalez un bug.";
+            return "Erreur de connexion. Veuillez réessayer.";
+        }
 
         window.onload = () => {
             Tone.Destination.volume.value = -8;
@@ -526,6 +555,7 @@
                                         ${page.score !== undefined ? `<div class="bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-2 flex items-center gap-2"><i class="ph ph-target text-indigo-500 text-xl"></i><span class="text-indigo-600 font-bold">Précision : ${page.score}%</span></div>` : ''}
                                     ` : `
                                         <button id="mic-btn" class="mic-btn" onclick="toggleRecording('${page.target}')"><i class="ph ph-microphone"></i></button>
+                                        <p id="speech-transcript" class="text-indigo-600 font-medium text-sm my-1"></p>
                                         <p id="speech-status" class="text-slate-500 font-medium text-sm transition-all duration-300 mt-2">Cliquez sur le micro pour parler</p>
                                         <p id="speech-tries" class="text-[10px] text-slate-400 mt-1 uppercase">Essai: 0 / 2</p>
                                     `}
@@ -610,7 +640,7 @@
                     audioChunks = [];
                     mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
                     mediaRecorder.onstop = async () => {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                         const reader = new FileReader();
                         reader.readAsDataURL(audioBlob);
                         reader.onloadend = async () => {
@@ -644,78 +674,137 @@
             }
         }
 
-        function calculateSimilarity(ref, hyp) {
-            if (!ref && !hyp) return 100;
-            if (!ref || !hyp) return 0;
-            ref = ref.trim();
-            hyp = hyp.trim();
-            if (ref === hyp) return 100;
+                const CHOSUNG = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+        const JUNGSUNG = ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
+        const JONGSUNG = ['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄸ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
 
-            const matrix = [];
-            for (let i = 0; i <= ref.length; i++) { matrix[i] = [i]; }
-            for (let j = 0; j <= hyp.length; j++) { matrix[0][j] = j; }
-
-            for (let i = 1; i <= ref.length; i++) {
-                for (let j = 1; j <= hyp.length; j++) {
-                    if (ref.charAt(i - 1) === hyp.charAt(j - 1)) {
-                        matrix[i][j] = matrix[i - 1][j - 1];
-                    } else {
-                        matrix[i][j] = Math.min(
-                            matrix[i - 1][j - 1] + 1, 
-                            Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1)
-                        );
-                    }
-                }
-            }
-            const distance = matrix[ref.length][hyp.length];
-            const maxLength = Math.max(ref.length, hyp.length);
-            return Math.max(0, Math.round(((maxLength - distance) / maxLength) * 100));
+        function normalizeSpeech(s) {
+            return (s || '').replace(/[^가-힣ㄱ-ㅣA-Za-z0-9]/g, '');
         }
 
-        async function verifySpeech(audioBase64, referenceText) {
+        function decomposeJamo(s) {
+            let out = '';
+            for (const ch of normalizeSpeech(s)) {
+                const code = ch.charCodeAt(0);
+                if (code >= 0xAC00 && code <= 0xD7A3) {
+                    const base = code - 0xAC00;
+                    out += CHOSUNG[Math.floor(base / 588)] + JUNGSUNG[Math.floor((base % 588) / 28)] + JONGSUNG[base % 28];
+                } else {
+                    out += ch;
+                }
+            }
+            return out;
+        }
+
+        function levenshtein(a, b) {
+            const m = a.length, n = b.length;
+            if (m === 0) return n;
+            if (n === 0) return m;
+            let prev = Array.from({ length: n + 1 }, (_, i) => i);
+            let curr = new Array(n + 1);
+            for (let i = 1; i <= m; i++) {
+                curr[0] = i;
+                for (let j = 1; j <= n; j++) {
+                    const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+                    curr[j] = Math.min(prev[j] + 1, curr[j - 1] + 1, prev[j - 1] + cost);
+                }
+                [prev, curr] = [curr, prev];
+            }
+            return prev[n];
+        }
+
+        function jamoSimilarity(expected, actual) {
+            const e = decomposeJamo(expected), a = decomposeJamo(actual);
+            if (e.length === 0 && a.length === 0) return 100;
+            if (e.length === 0 || a.length === 0) return 0;
+            const dist = levenshtein(e, a);
+            return Math.round((1 - dist / Math.max(e.length, a.length)) * 100);
+        }
+
+        function calculateSimilarity(ref, hyp) {
+            return jamoSimilarity(ref, hyp);
+        }
+
+                async function verifySpeech(audioBase64, referenceText) {
             const status = document.getElementById('speech-status');
             const triesDisplay = document.getElementById('speech-tries');
             const btn = document.getElementById('mic-btn');
             const charText = document.getElementById('target-char');
+            const transcriptEl = document.getElementById('speech-transcript');
             const page = pages[currentPage];
             
             speechTries++;
-            if(triesDisplay) triesDisplay.innerText = `Essai: ${speechTries} / ${MAX_TRIES}`;
+            if (triesDisplay) triesDisplay.innerText = `Essai: ${speechTries} / ${MAX_TRIES}`;
+
+            let transcript = "";
+            let apiError = null;
 
             try {
-                const response = await fetch(CLOVA_API_FUNCTION_URL, {
+                if (!lessonPermit || !lessonId) throw new Error('Lesson permit is not available yet.');
+
+                const payload = {
+                    contents: [{
+                        role: "user",
+                        parts: [
+                            { text: "Analyze the audio response." },
+                            { inline_data: { mime_type: "audio/webm", data: audioBase64 } }
+                        ]
+                    }],
+                    systemInstruction: "유저 발화를 한글로 전사하시오."
+                };
+
+                const res = await fetch(GEMINI_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ audioBase64: audioBase64, languageCode: "Kor", referenceText: referenceText })
+                    body: JSON.stringify({ ...payload, permit: lessonPermit, lesson_id: lessonId })
                 });
-                
-                const result = await response.json();
-                
-                const recognizedText = result.text || result.recognizedText || result.value || "";
-                
-                let score = result.score || result.confidence;
-                if (score === undefined || score === null) {
-                    score = calculateSimilarity(referenceText, recognizedText);
-                }
-                
-                page.score = score;
 
-                if (speechTries === 1) {
-                    if(charText) charText.className = "hangeul-large text-indigo-600";
-                    playInteractionAudio(page.audio);
+                if (!res.ok) throw new Error("API status: " + res.status);
+
+                const data = await res.json();
+                transcript = (data.text || "").trim();
+                geminiErrorStreak = 0;
+            } catch (error) {
+                console.warn("Gemini API Error:", error);
+                apiError = geminiErrorMessage(error);
+            }
+
+            if (speechTries === 1) {
+                if (charText) charText.className = "hangeul-large text-indigo-600";
+                playInteractionAudio(page.audio);
+                if (apiError) {
+                    if (transcriptEl) transcriptEl.innerText = "";
+                    if (status) {
+                        status.innerText = apiError;
+                        status.className = "text-red-500 font-medium text-sm transition-all duration-300";
+                    }
+                } else {
+                    if (transcriptEl) transcriptEl.innerText = transcript ? `« ${transcript} »` : "";
                     if (status) {
                         status.innerText = "Essayons encore une fois !";
                         status.className = "text-green-500 status-large transition-all duration-300 transform scale-110 mt-2";
                     }
-                } else if (speechTries >= 2) {
-                    correctSound.triggerAttackRelease(['G5', 'C6'], '4n');
-                    page.isCompleted = true;
-                    if(charText) charText.className = "hangeul-large text-green-500";
-                    
-                    const container = document.getElementById('speech-ui-container');
-                    if(container) {
+                }
+            } else if (speechTries >= 2) {
+                correctSound.triggerAttackRelease(['G5', 'C6'], '4n');
+                page.isCompleted = true;
+                if (charText) charText.className = "hangeul-large text-green-500";
+                
+                const container = document.getElementById('speech-ui-container');
+                if (container) {
+                    if (apiError) {
+                        page.score = undefined;
                         container.innerHTML = `
                             <div class="mic-btn opacity-40 mb-2"><i class="ph ph-check"></i></div>
+                            <p class="text-red-500 font-medium text-sm my-1">${apiError}</p>
+                            <p class="text-green-500 font-bold status-large mb-2">Très bien !</p>
+                        `;
+                    } else {
+                        const score = jamoSimilarity(referenceText, transcript);
+                        page.score = score;
+                        container.innerHTML = `
+                            <div class="mic-btn opacity-40 mb-2"><i class="ph ph-check"></i></div>
+                            ${transcript ? `<p class="text-indigo-600 font-medium text-sm my-1">« ${transcript} »</p>` : ''}
                             <p class="text-green-500 font-bold status-large mb-2">Très bien !</p>
                             <div class="bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-2 flex items-center gap-2">
                                 <i class="ph ph-target text-indigo-500 text-xl"></i>
@@ -723,28 +812,9 @@
                             </div>
                         `;
                     }
-                    document.getElementById('next-btn').disabled = false;
                 }
-            } catch (error) {
-                if (speechTries >= MAX_TRIES) {
-                    page.score = 0;
-                    correctSound.triggerAttackRelease(['G5', 'C6'], '4n');
-                    page.isCompleted = true;
-                    if(charText) charText.className = "hangeul-large text-green-500";
-                    
-                    const container = document.getElementById('speech-ui-container');
-                    if(container) {
-                        container.innerHTML = `
-                            <div class="mic-btn opacity-40 mb-2"><i class="ph ph-check"></i></div>
-                            <p class="text-green-500 font-bold status-large mb-2">Très bien !</p>
-                            <div class="bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-2 flex items-center gap-2">
-                                <i class="ph ph-target text-indigo-500 text-xl"></i>
-                                <span class="text-indigo-600 font-bold">Précision : ${page.score}%</span>
-                            </div>
-                        `;
-                    }
-                    document.getElementById('next-btn').disabled = false;
-                }
+                const nextBtn = document.getElementById('next-btn');
+                if (nextBtn) nextBtn.disabled = false;
             }
         }
     </script>
