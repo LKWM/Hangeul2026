@@ -541,7 +541,7 @@
                 requestAnimationFrame(() => adjustTextFit());
                 container.classList.add('active');
 
-                if (page.audio && page.type !== 'text-quiz' && page.type !== 'speech' && page.type !== 'outro') {
+                if (page.audio && page.type !== 'outro') {
                     playBackgroundAudio(page.audio, 500);
                 }
             }, 50);
