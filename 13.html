@@ -288,7 +288,7 @@
         const RECORDING_LIMIT = 6000; 
 
                 const BASE_44_ORIGIN = "https://coreeno.base44.app";
-        const GEMINI_URL = 'https://coreeno.base44.app/functions/GeminiChatSecure';
+        const GEMINI_URL = 'https://coreeno.base44.app/functions/GeminiTransSecure';
         const CLOVA_API_FUNCTION_URL = GEMINI_URL;
 
         let lessonPermit = null;
@@ -708,8 +708,7 @@
                             { text: "Analyze the audio response." },
                             { inline_data: { mime_type: "audio/webm", data: audioBase64 } }
                         ]
-                    }],
-                    systemInstruction: "유저 발화를 한글로 전사하시오."
+                    }]
                 };
 
                 const res = await fetch(GEMINI_URL, {
