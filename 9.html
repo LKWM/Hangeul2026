@@ -315,7 +315,7 @@
         const RECORDING_LIMIT = 6000; 
 
                 const BASE_44_ORIGIN = "https://coreeno.base44.app";
-        const GEMINI_URL = 'https://coreeno.base44.app/functions/GeminiTransSecure';
+        const GEMINI_URL = 'https://coreeno.base44.app/functions/GeminiChatSecure';
         const CLOVA_API_FUNCTION_URL = GEMINI_URL;
 
         let lessonPermit = null;
@@ -749,7 +749,7 @@
                 const res = await fetch(GEMINI_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ...payload, permit: lessonPermit, lesson_id: lessonId })
+                    body: JSON.stringify({ ...payload, systemInstruction: "유저 발화를 한글로 전사하시오.", model: "gemini-3.5-flash-lite", permit: lessonPermit, lesson_id: lessonId })
                 });
 
                 if (!res.ok) throw new Error("API status: " + res.status);
