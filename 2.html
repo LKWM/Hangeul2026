@@ -431,12 +431,12 @@
                                     ${page.isCompleted ? `
                                         <div class="mic-btn opacity-40"><i class="ph ph-check"></i></div>
                                         <p class="text-indigo-600 font-medium text-sm my-1" style="min-height: 1.5em;"></p>
-                                        <p class="text-green-500 font-bold status-large">Très bien !</p>
+                                        <p class="text-green-500 font-bold status-large" style="min-height: calc(clamp(1.2rem, 3.5vh, 1.8rem) * 3);">Très bien !</p>
                                         <p class="text-[10px] text-slate-400 mt-1 uppercase invisible">Essai: 0 / 2</p>
                                     ` : `
                                         <button id="mic-btn" class="mic-btn" onclick="toggleRecording('${page.target}')"><i class="ph ph-microphone"></i></button>
                                         <p id="speech-transcript" class="text-indigo-600 font-medium text-sm my-1" style="min-height: 1.5em;"></p>
-                                        <p id="speech-status" class="text-slate-500 font-medium text-sm transition-all duration-300" style="min-height: calc(clamp(1.2rem, 3.5vh, 1.8rem) * 1.5);">Cliquez sur le micro pour parler</p>
+                                        <p id="speech-status" class="text-slate-500 font-medium text-sm transition-all duration-300" style="min-height: calc(clamp(1.2rem, 3.5vh, 1.8rem) * 3);">Cliquez sur le micro pour parler</p>
                                         <p id="speech-tries" class="text-[10px] text-slate-400 mt-1 uppercase">Essai: 0 / 2</p>
                                     `}
                                 </div>
@@ -607,14 +607,14 @@
                         container.innerHTML = `
                             <div class="mic-btn opacity-40"><i class="ph ph-check"></i></div>
                             <p class="text-red-500 font-medium text-sm my-1">${apiError}</p>
-                            <p class="text-green-500 font-bold status-large">Très bien !</p>
+                            <p class="text-green-500 font-bold status-large" style="min-height: calc(clamp(1.2rem, 3.5vh, 1.8rem) * 3);">Très bien !</p>
                             <p class="text-[10px] text-slate-400 mt-1 uppercase invisible">Essai: 0 / 2</p>
                         `;
                     } else {
                         container.innerHTML = `
                             <div class="mic-btn opacity-40"><i class="ph ph-check"></i></div>
                             ${transcript ? `<p class="text-indigo-600 font-medium text-sm my-1">« ${transcript} »</p>` : `<p class="text-indigo-600 font-medium text-sm my-1" style="min-height: 1.5em;"></p>`}
-                            <p class="text-green-500 font-bold status-large">Très bien !</p>
+                            <p class="text-green-500 font-bold status-large" style="min-height: calc(clamp(1.2rem, 3.5vh, 1.8rem) * 3);">Très bien !</p>
                             <p class="text-[10px] text-slate-400 mt-1 uppercase invisible">Essai: 0 / 2</p>
                         `;
                     }
