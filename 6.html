@@ -544,22 +544,16 @@
                                     <p class="ipa-text">${page.ipa}</p>
                                     <div class="mt-2 text-indigo-300"><i class="ph ph-speaker-high text-xl"></i></div>
                                 </div>
-                                <div id="speech-ui-container" class="flex flex-col items-center shrink-0">
+                                <div id="speech-ui-container" class="flex flex-col items-center shrink-0 min-h-[140px]">
                                     ${page.isCompleted ? `
-                                        <button id="mic-btn" class="mic-btn opacity-40" disabled onclick="toggleRecording('${page.target}')"><i class="ph ph-check"></i></button>
-                                        <p id="speech-transcript" class="text-indigo-600 font-medium text-sm my-1 invisible" style="min-height: 1.5em;"></p>
-                                        <div class="grid justify-items-center items-center w-full">
-                                            <p id="speech-status" class="col-start-1 row-start-1 text-slate-500 font-medium text-sm transition-all duration-300 text-center invisible">Cliquez sur le micro pour parler</p>
-                                            <p id="speech-done-status" class="col-start-1 row-start-1 status-large font-bold text-green-500 text-center">Très bien !</p>
-                                        </div>
-                                        <p id="speech-tries" class="text-[10px] text-slate-400 mt-1 uppercase invisible">Essai: 0 / 2</p>
+                                        <div class="mic-btn opacity-40"><i class="ph ph-check"></i></div>
+                                        <p class="text-indigo-600 font-medium text-sm my-1" style="min-height: 1.5em;"></p>
+                                        <p class="text-green-500 font-bold status-large" style="min-height: calc(clamp(1.2rem, 3.5vh, 1.8rem) * 1.5);">Très bien !</p>
+                                        <p class="text-[10px] text-slate-400 mt-1 uppercase invisible">Essai: 0 / 2</p>
                                     ` : `
                                         <button id="mic-btn" class="mic-btn" onclick="toggleRecording('${page.target}')"><i class="ph ph-microphone"></i></button>
-                                        <p id="speech-transcript" class="text-indigo-600 font-medium text-sm my-1 invisible" style="min-height: 1.5em;"></p>
-                                        <div class="grid justify-items-center items-center w-full">
-                                            <p id="speech-status" class="col-start-1 row-start-1 text-slate-500 font-medium text-sm transition-all duration-300 text-center">Cliquez sur le micro pour parler</p>
-                                            <p id="speech-done-status" class="col-start-1 row-start-1 status-large font-bold text-green-500 text-center invisible">Très bien !</p>
-                                        </div>
+                                        <p id="speech-transcript" class="text-indigo-600 font-medium text-sm my-1" style="min-height: 1.5em;"></p>
+                                        <p id="speech-status" class="text-slate-500 font-medium text-sm transition-all duration-300" style="min-height: calc(clamp(1.2rem, 3.5vh, 1.8rem) * 1.5);">Cliquez sur le micro pour parler</p>
                                         <p id="speech-tries" class="text-[10px] text-slate-400 mt-1 uppercase">Essai: 0 / 2</p>
                                     `}
                                 </div>
@@ -782,36 +776,40 @@
                 if (charText) charText.className = "hangeul-large text-indigo-600";
                 playInteractionAudio(page.audio);
                 if (apiError) {
-                    if (transcriptEl) { transcriptEl.innerText = ""; transcriptEl.classList.add('invisible'); }
+                    if (transcriptEl) transcriptEl.innerText = "";
                     if (status) {
                         status.innerText = apiError;
-                        status.className = "text-red-500 font-medium text-sm transition-all duration-300 col-start-1 row-start-1 text-center";
+                        status.className = "text-red-500 font-medium text-sm transition-all duration-300";
                     }
                 } else {
-                    if (transcriptEl) {
-                        if (transcript) { transcriptEl.innerText = `« ${transcript} »`; transcriptEl.classList.remove('invisible'); }
-                        else { transcriptEl.innerText = ""; transcriptEl.classList.add('invisible'); }
-                    }
+                    if (transcriptEl) transcriptEl.innerText = transcript ? `« ${transcript} »` : "";
                     if (status) {
                         status.innerText = "Essayons encore une fois !";
-                        status.className = "text-green-500 status-large transition-all duration-300 transform scale-110 col-start-1 row-start-1 text-center";
+                        status.className = "text-green-500 status-large";
                     }
                 }
             } else if (speechTries >= 2) {
                 correctSound.triggerAttackRelease(['G5', 'C6'], '4n');
                 page.isCompleted = true;
                 if (charText) charText.className = "hangeul-large text-green-500";
-                if (btn) { btn.disabled = true; btn.classList.add('opacity-40'); btn.innerHTML = '<i class="ph ph-check"></i>'; }
-                if (transcriptEl) {
-                    transcriptEl.classList.remove('text-indigo-600', 'text-red-500');
-                    if (apiError) { transcriptEl.innerText = apiError; transcriptEl.classList.add('text-red-500'); transcriptEl.classList.remove('invisible'); }
-                    else if (transcript) { transcriptEl.innerText = `« ${transcript} »`; transcriptEl.classList.add('text-indigo-600'); transcriptEl.classList.remove('invisible'); }
-                    else { transcriptEl.innerText = ""; transcriptEl.classList.add('invisible'); }
+                const container = document.getElementById('speech-ui-container');
+                if (container) {
+                    if (apiError) {
+                        container.innerHTML = `
+                            <div class="mic-btn opacity-40"><i class="ph ph-check"></i></div>
+                            <p class="text-red-500 font-medium text-sm my-1">${apiError}</p>
+                            <p class="text-green-500 font-bold status-large" style="min-height: calc(clamp(1.2rem, 3.5vh, 1.8rem) * 1.5);">Très bien !</p>
+                            <p class="text-[10px] text-slate-400 mt-1 uppercase invisible">Essai: 0 / 2</p>
+                        `;
+                    } else {
+                        container.innerHTML = `
+                            <div class="mic-btn opacity-40"><i class="ph ph-check"></i></div>
+                            ${transcript ? `<p class="text-indigo-600 font-medium text-sm my-1">« ${transcript} »</p>` : `<p class="text-indigo-600 font-medium text-sm my-1" style="min-height: 1.5em;"></p>`}
+                            <p class="text-green-500 font-bold status-large" style="min-height: calc(clamp(1.2rem, 3.5vh, 1.8rem) * 1.5);">Très bien !</p>
+                            <p class="text-[10px] text-slate-400 mt-1 uppercase invisible">Essai: 0 / 2</p>
+                        `;
+                    }
                 }
-                if (status) status.classList.add('invisible');
-                const doneStatus = document.getElementById('speech-done-status');
-                if (doneStatus) doneStatus.classList.remove('invisible');
-                if (triesDisplay) triesDisplay.classList.add('invisible');
                 const nextBtn = document.getElementById('next-btn');
                 if (nextBtn) nextBtn.disabled = false;
             }
