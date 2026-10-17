@@ -504,11 +504,11 @@
                                     ${page.subtitle ? `<p class="text-sm text-slate-500 font-medium mt-1">${page.subtitle}</p>` : ''}
                                     <div class="mt-2 text-indigo-300"><i class="ph ph-speaker-high text-xl"></i></div>
                                 </div>
-                                <div id="speech-ui-container" class="flex flex-col items-center shrink-0 min-h-[140px]">
+                                <div id="speech-ui-container" class="flex flex-col items-center w-full shrink-0 min-h-[140px]">
                                     ${page.isCompleted ? `
                                         <div class="mic-btn opacity-40"><i class="ph ph-check"></i></div>
                                         <p class="text-indigo-600 font-medium text-sm my-1" style="min-height: 1.5em;"></p>
-                                        <p class="text-green-500 font-bold status-large mt-2" style="min-height: calc(clamp(1.2rem, 3.5vh, 1.8rem) * 1.5);">Très bien !</p>
+                                        <div class="relative w-full mt-2"><p class="status-large invisible" aria-hidden="true">Essayons encore une fois !</p><p class="absolute inset-0 flex items-center justify-center text-green-500 font-bold status-large">Très bien !</p></div>
                                         <div class="grid justify-items-center items-center w-full mt-1">
                                             <p class="col-start-1 row-start-1 text-[10px] text-slate-400 uppercase tracking-widest invisible">Essai: 0 / 2</p>
                                         ${page.score !== undefined ? `<div class="col-start-1 row-start-1 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-2 flex items-center gap-2"><i class="ph ph-target text-indigo-500 text-xl"></i><span class="text-indigo-600 font-bold">Précision : ${page.score}%</span></div>` : ''}
@@ -516,8 +516,8 @@
                                     ` : `
                                         <button id="mic-btn" class="mic-btn" onclick="toggleRecording('${page.target}')"><i class="ph ph-microphone"></i></button>
                                         <p id="speech-transcript" class="text-indigo-600 font-medium text-sm my-1" style="min-height: 1.5em;"></p>
-                                        <p id="speech-status" class="text-slate-500 font-medium text-sm transition-all duration-300 mt-2" style="min-height: calc(clamp(1.2rem, 3.5vh, 1.8rem) * 1.5);">Cliquez sur le micro pour parler</p>
-                                        <p id="speech-tries" class="text-[10px] text-slate-400 mt-1 uppercase">Essai: 0 / 2</p>
+                                        <div class="relative w-full mt-2"><p class="status-large invisible" aria-hidden="true">Essayons encore une fois !</p><p id="speech-status" class="absolute inset-0 flex items-center justify-center text-slate-500 font-medium text-sm transition-all duration-300">Cliquez sur le micro pour parler</p></div>
+                                        <div class="grid justify-items-center items-center w-full mt-1"><p id="speech-tries" class="col-start-1 row-start-1 text-[10px] text-slate-400 uppercase">Essai: 0 / 2</p><div class="col-start-1 row-start-1 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-2 flex items-center gap-2 invisible"><i class="ph ph-target text-indigo-500 text-xl"></i><span class="text-indigo-600 font-bold">Précision : 0%</span></div></div>
                                     `}
                                 </div>
                             </div>
@@ -739,13 +739,13 @@
                     if (transcriptEl) transcriptEl.innerText = "";
                     if (status) {
                         status.innerText = apiError;
-                        status.className = "text-red-500 font-medium text-sm transition-all duration-300";
+                        status.className = "absolute inset-0 flex items-center justify-center text-red-500 font-medium text-sm transition-all duration-300";
                     }
                 } else {
                     if (transcriptEl) transcriptEl.innerText = transcript ? `« ${transcript} »` : "";
                     if (status) {
                         status.innerText = "Essayons encore une fois !";
-                        status.className = "text-green-500 status-large mt-2";
+                        status.className = "absolute inset-0 flex items-center justify-center text-green-500 status-large";
                     }
                 }
             } else if (speechTries >= 2) {
@@ -760,7 +760,7 @@
                         container.innerHTML = `
                             <div class="mic-btn opacity-40"><i class="ph ph-check"></i></div>
                             <p class="text-red-500 font-medium text-sm my-1">${apiError}</p>
-                            <p class="text-green-500 font-bold status-large mt-2" style="min-height: calc(clamp(1.2rem, 3.5vh, 1.8rem) * 1.5);">Très bien !</p>
+                            <div class="relative w-full mt-2"><p class="status-large invisible" aria-hidden="true">Essayons encore une fois !</p><p class="absolute inset-0 flex items-center justify-center text-green-500 font-bold status-large">Très bien !</p></div>
                             <div class="grid justify-items-center items-center w-full mt-1">
                                 <p class="col-start-1 row-start-1 text-[10px] text-slate-400 uppercase tracking-widest invisible">Essai: 0 / 2</p>
                                 <div class="col-start-1 row-start-1 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-2 flex items-center gap-2 invisible">
@@ -775,7 +775,7 @@
                         container.innerHTML = `
                             <div class="mic-btn opacity-40"><i class="ph ph-check"></i></div>
                             ${transcript ? `<p class="text-indigo-600 font-medium text-sm my-1">« ${transcript} »</p>` : `<p class="text-indigo-600 font-medium text-sm my-1" style="min-height: 1.5em;"></p>`}
-                            <p class="text-green-500 font-bold status-large mt-2" style="min-height: calc(clamp(1.2rem, 3.5vh, 1.8rem) * 1.5);">Très bien !</p>
+                            <div class="relative w-full mt-2"><p class="status-large invisible" aria-hidden="true">Essayons encore une fois !</p><p class="absolute inset-0 flex items-center justify-center text-green-500 font-bold status-large">Très bien !</p></div>
                             <div class="grid justify-items-center items-center w-full mt-1">
                                 <p class="col-start-1 row-start-1 text-[10px] text-slate-400 uppercase tracking-widest invisible">Essai: 0 / 2</p>
                                 <div class="col-start-1 row-start-1 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-2 flex items-center gap-2">
