@@ -174,7 +174,7 @@
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
-        .status-large { font-size: clamp(1.2rem, 3.5vh, 1.8rem); font-weight: 600; }
+        .status-large { font-size: min(clamp(1.2rem, 3.5vh, 1.8rem), calc((100vw - 40px) / 14)); font-weight: 600; white-space: nowrap; }
 
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
         .animate-shake { animation: shake 0.4s; }
@@ -435,28 +435,19 @@
                                         <i class="ph ph-speaker-high text-2xl"></i>
                                     </div>
                                 </div>
-                                <div id="speech-ui-container" class="flex flex-col items-center shrink-0">
+                                <div id="speech-ui-container" class="flex flex-col items-center w-full min-h-[140px]">
                                     ${page.isCompleted ? `
                                         <div class="mic-btn opacity-40"><i class="ph ph-check"></i></div>
-                                        <p id="speech-status" class="${page.score >= (page.threshold || 50) || page.mode === 'repeat-2tries' ? 'text-green-500' : 'text-indigo-500'} font-bold status-large mt-2 text-center px-4" style="min-height: calc(clamp(1.2rem, 3.5vh, 1.8rem) * 1.5);">${page.mode === 'speaking' && page.score < (page.threshold || 50) ? 'Bien essayé !' : 'Très bien !'}</p>
-                                        <p id="speech-transcript" class="text-indigo-600 font-medium text-sm my-1" style="min-height: 1.5em;">${page.transcript ? `« ${page.transcript} »` : ''}</p>
-                                        <div class="grid justify-items-center items-center w-full mt-1">
-                                            <p class="col-start-1 row-start-1 text-[10px] text-slate-400 uppercase tracking-widest invisible">Essai: 2 / 2</p>
-                                            <div class="col-start-1 row-start-1 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-2 flex items-center gap-2 ${page.score !== undefined ? '' : 'invisible'}"><i class="ph ph-target text-indigo-500 text-xl"></i><span class="text-indigo-600 font-bold">Précision : ${page.score !== undefined ? page.score : 0}%</span></div>
-                                        </div>
-                                        <p class="text-indigo-500 font-bold text-sm mt-1 invisible" style="min-height: 1.5em;">&nbsp;</p>
+                                        ${page.transcript ? `<p class="text-indigo-600 font-medium text-sm my-1">« ${page.transcript} »</p>` : `<p class="text-indigo-600 font-medium text-sm my-1" style="min-height: 1.5em;"></p>`}
+                                        <div class="relative w-full"><p class="status-large invisible" aria-hidden="true">Écoutez et essayez encore !</p><p class="absolute inset-0 flex items-center justify-center ${page.score >= (page.threshold || 50) || page.mode === 'repeat-2tries' ? 'text-green-500' : 'text-indigo-500'} font-bold status-large">${page.mode === 'speaking' && page.score < (page.threshold || 50) ? 'Bien essayé !' : 'Très bien !'}</p></div>
+                                        <div class="grid justify-items-center items-center w-full mt-1"><div class="col-start-1 row-start-1 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-2 flex items-center gap-2 ${page.score !== undefined ? '' : 'invisible'}"><i class="ph ph-target text-indigo-500 text-xl"></i><span class="text-indigo-600 font-bold">Précision : ${page.score !== undefined ? page.score : 0}%</span></div></div>
                                     ` : `
                                         <button id="mic-btn" class="mic-btn" onclick="toggleRecording('${page.target}')"><i class="ph ph-microphone"></i></button>
-                                        <p id="speech-transcript" class="text-indigo-600 font-medium text-sm my-1" style="min-height: 1.5em;">${page.transcript ? `« ${page.transcript} »` : ''}</p>
-                                        <p id="speech-status" class="text-slate-500 font-medium text-sm mt-2 text-center px-4" style="min-height: calc(clamp(1.2rem, 3.5vh, 1.8rem) * 1.5);">Cliquez sur le micro pour parler</p>
-                                        <div class="grid justify-items-center items-center w-full mt-1">
-                                            <p id="speech-tries" class="col-start-1 row-start-1 text-[10px] text-slate-400 uppercase tracking-widest">Essai: ${speechTries} / 2</p>
-                                            <div class="col-start-1 row-start-1 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-2 flex items-center gap-2 invisible"><i class="ph ph-target text-indigo-500 text-xl"></i><span class="text-indigo-600 font-bold">Précision : ${page.score !== undefined ? page.score : 0}%</span></div>
-                                        </div>
-                                        <p id="dernier-score" class="text-indigo-500 font-bold text-sm mt-1 ${page.score !== undefined && page.mode === 'repeat-2tries' ? '' : 'invisible'}" style="min-height: 1.5em;">${page.score !== undefined && page.mode === 'repeat-2tries' ? `Dernier score : ${page.score}%` : ''}</p>
+                                        <p id="speech-transcript" class="text-indigo-600 font-medium text-sm my-1" style="min-height: 1.5em;"></p>
+                                        <div class="relative w-full"><p class="status-large invisible" aria-hidden="true">Écoutez et essayez encore !</p><p id="speech-status" class="absolute inset-0 flex items-center justify-center text-slate-500 font-medium text-sm transition-all duration-300">Cliquez sur le micro pour parler</p></div>
+                                        <div class="grid justify-items-center items-center w-full mt-1"><div class="col-start-1 row-start-1 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-2 flex items-center gap-2 invisible"><i class="ph ph-target text-indigo-500 text-xl"></i><span class="text-indigo-600 font-bold">Précision : ${page.score !== undefined ? page.score : 0}%</span></div></div>
                                     `}
-                                </div>
-                            </div>
+                                </div>                            </div>
                         `;
                         break;
 
@@ -479,7 +470,27 @@
             if (skipTransition) doRender(); else setTimeout(doRender, 50);
         }
 
-        function adjustTextFit() {
+function updateTargetChar(page) {
+            const tc = document.getElementById('target-char');
+            if (tc) {
+                tc.className = 'font-bold tracking-tight text-center leading-tight transition-colors duration-500 ' + ((page.mode === 'speaking' && page.revealed && !page.isCompleted) ? 'text-red-500' : (page.isCompleted && page.score >= (page.threshold || 50) ? 'text-green-500' : 'text-indigo-600'));
+                tc.innerText = (page.mode === 'speaking') ? (page.revealed ? page.target : page.display) : page.display;
+            }
+        }
+        function renderCompleted(page, transcript, apiError) {
+            updateTargetChar(page);
+            const container = document.getElementById('speech-ui-container');
+            if (!container) return;
+            const statusColor = (page.score >= (page.threshold || 50) || page.mode === 'repeat-2tries') ? 'text-green-500' : 'text-indigo-500';
+            const statusText = (page.mode === 'speaking' && page.score < (page.threshold || 50)) ? 'Bien essayé !' : 'Très bien !';
+            container.innerHTML = `
+                <div class="mic-btn opacity-40"><i class="ph ph-check"></i></div>
+                ${apiError ? `<p class="text-red-500 font-medium text-sm my-1">${apiError}</p>` : (transcript ? `<p class="text-indigo-600 font-medium text-sm my-1">« ${transcript} »</p>` : `<p class="text-indigo-600 font-medium text-sm my-1" style="min-height: 1.5em;"></p>`)}
+                <div class="relative w-full"><p class="status-large invisible" aria-hidden="true">Écoutez et essayez encore !</p><p class="absolute inset-0 flex items-center justify-center ${statusColor} font-bold status-large">${statusText}</p></div>
+                <div class="grid justify-items-center items-center w-full mt-1"><div class="col-start-1 row-start-1 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-2 flex items-center gap-2 ${page.score !== undefined ? '' : 'invisible'}"><i class="ph ph-target text-indigo-500 text-xl"></i><span class="text-indigo-600 font-bold">Précision : ${page.score !== undefined ? page.score : 0}%</span></div></div>
+            `;
+        }
+                function adjustTextFit() {
             const descTexts = document.querySelectorAll('.desc-text');
             descTexts.forEach(descText => {
                 descText.style.fontSize = ''; descText.style.lineHeight = '';
@@ -531,9 +542,6 @@
             const maxTries = 2;
             speechTries++;
 
-            const triesDisplay = document.getElementById('speech-tries');
-            if (triesDisplay) triesDisplay.innerText = `Essai: ${speechTries} / ${maxTries}`;
-
             let transcript = "";
             let apiError = null;
             let score = 0;
@@ -575,13 +583,14 @@
                 if (speechTries >= maxTries) {
                     page.isCompleted = true;
                     document.getElementById('next-btn').disabled = false;
-                    renderPage(true);
+                    renderCompleted(page, undefined, apiError);
                 } else {
-                    renderPage(true);
+                    const transcriptEl = document.getElementById('speech-transcript');
+                    if (transcriptEl) transcriptEl.innerText = "";
                     const status = document.getElementById('speech-status');
                     if (status) {
                         status.innerText = apiError;
-                        status.className = "text-red-500 font-medium text-sm mt-2 text-center px-4";
+                        status.className = "absolute inset-0 flex items-center justify-center text-red-500 font-medium text-sm";
                     }
                     if (page.mode === 'repeat-2tries') {
                         setTimeout(() => playInteractionWithMicLock(page.targetAudio), 400);
@@ -593,21 +602,23 @@
             page.score = score;
             page.transcript = transcript;
             page.revealed = true;
+            updateTargetChar(page);
 
             if (page.mode === 'repeat-2tries') {
                 if (speechTries === 1) {
-                    renderPage(true);
+                    const transcriptEl = document.getElementById('speech-transcript');
+                    if (transcriptEl) transcriptEl.innerText = transcript ? `« ${transcript} »` : "";
                     const status = document.getElementById('speech-status');
                     if (status) {
                         status.innerText = `Écoutez et essayez encore !`;
-                        status.className = "text-indigo-500 font-bold mt-2 text-center px-4";
+                        status.className = "absolute inset-0 flex items-center justify-center text-indigo-500 status-large";
                     }
                     setTimeout(() => playInteractionWithMicLock(page.targetAudio), 400);
                 } else if (speechTries >= 2) {
                     page.isCompleted = true;
                     correctSound.triggerAttackRelease(['G5', 'C6'], '4n');
                     document.getElementById('next-btn').disabled = false;
-                    renderPage(true);
+                    renderCompleted(page, transcript);
                 }
             } else if (page.mode === 'speaking') {
                 const threshold = page.threshold || 70;
@@ -615,19 +626,20 @@
                     page.isCompleted = true;
                     correctSound.triggerAttackRelease(['G5', 'C6'], '4n');
                     document.getElementById('next-btn').disabled = false;
-                    renderPage(true);
+                    renderCompleted(page, transcript);
                 } else if (speechTries >= maxTries) {
                     page.isCompleted = true;
                     wrongSound.triggerAttackRelease(['G3', 'F3'], '8n');
                     document.getElementById('next-btn').disabled = false;
-                    renderPage(true);
+                    renderCompleted(page, transcript);
                 } else {
                     wrongSound.triggerAttackRelease(['G3', 'F3'], '8n');
-                    renderPage(true);
+                    const transcriptEl = document.getElementById('speech-transcript');
+                    if (transcriptEl) transcriptEl.innerText = transcript ? `« ${transcript} »` : "";
                     const status = document.getElementById('speech-status');
                     if (status) {
                         status.innerText = "Essayons encore une fois !";
-                        status.className = "text-orange-500 font-bold mt-2 text-center px-4";
+                        status.className = "absolute inset-0 flex items-center justify-center text-orange-500 status-large";
                     }
                 }
             }
