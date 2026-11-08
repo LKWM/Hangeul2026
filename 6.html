@@ -756,10 +756,17 @@
                     }]
                 };
 
+                const systemInstruction = `유저 발화를 한글로 전사한다.
+
+1. Filler words, stutters 삭제하고 실제 발화값만 전사.
+2. 실재하지 않는 단어라도 발음을 최대한 살려 들리는대로 전사.
+3. 여러 소리 중 식별이 어려울 경우 Reference text를 참조.
+4. Reference text: ${referenceText}`;
+
                 const res = await fetch(GEMINI_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ...payload, systemInstruction: "유저 발화를 한글로 전사하시오.", model: "gemini-3.5-flash-lite", permit: lessonPermit, lesson_id: lessonId })
+                    body: JSON.stringify({ ...payload, systemInstruction: systemInstruction, model: "gemini-3.5-flash-lite", permit: lessonPermit, lesson_id: lessonId })
                 });
 
                 if (!res.ok) throw new Error("API status: " + res.status);
